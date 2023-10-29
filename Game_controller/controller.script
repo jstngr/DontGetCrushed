@@ -1,0 +1,627 @@
+local timer = -1
+
+local lives = 3
+
+local hero_path = "Gamecontroller_collection:/level/hero#hero"
+local coin_path = "Gamecontroller_collection:/level/coin#coin"
+local walls_path = "Gamecontroller_collection:/level/walls/controller#walls"
+local game_gui_path = "Gamecontroller_collection:/game_gui/gui#gui"
+
+local game_state = "init" -- init, game, crushed, gameover
+
+local is_first_try = true
+
+local goal_position = 0
+local hero_position = 0
+local goal_space = 0
+
+local is_coin_spawned = false
+local coin_position = 0
+local bonuscoins = 0
+local coin_y = 0
+
+local stage = 0
+local min_timer = 90
+
+local points = 0
+local highscore = 0
+
+local level_generated = false
+
+local lift_timer = -1
+local level_gerneration_timer = -1
+
+local able_to_move = true
+local delay_move_msg = -1
+
+local pause_timer = -1 -- break between life loss
+
+local is_pause = false
+local waiting_for_pause = false
+
+local is_able_to_insta_crush = false
+
+local is_sound = true
+
+local active_skin = 1
+local unlocked_table = {1, 0, 0, 0}
+local skin_table = {"hero", "sir", "batman", "clown"}
+
+go.property("wait", 0)
+
+function delay(seconds, fn, argument)
+	go.animate("#", "wait", go.PLAYBACK_ONCE_FORWARD, 0, go.EASING_LINEAR, seconds, 0, function()
+	fn(argument)
+	end)
+end
+
+function init(self) 
+	
+	get_save_data()
+	
+	get_saved_options()
+	
+	notify_options()
+	
+	msg.post(".", "acquire_input_focus")
+	math.randomseed(os.clock())
+	-- calc_timer
+	--timer = math.ceil(min_timer + (3 * 60) - (stage * 6))
+	--timer = 120
+	timer = get_timer(self, stage)
+	msg.post(hero_path, "set_able_to_move", {able_to_move})
+	msg.post(hero_path, "controller: path", {"Gamecontroller_collection:/controller#controller"})
+	msg.post(coin_path, "Controller: path", {"Gamecontroller_collection:/controller#controller"})
+	msg.post(walls_path, "generate_level_fast")	
+	msg.post(game_gui_path, "set_score", {0})	
+	msg.post(game_gui_path, "set_bonuscoins", {bonuscoins})
+	msg.post(hero_path, "Controller: dead")	
+	
+	print("[controller] Debug"..tonumber(sys.get_config("project.version")))
+	game_state = "game"
+	
+	get_saved_skin_data()
+	msg.post(game_gui_path, "Controller: Skin", {skin_table[active_skin]})
+end
+
+function get_timer(self, stage)
+	if stage < 5 then
+		return min_timer + 180 + 60 -- 300 = 5 Sek
+	end
+	if stage < 10 then
+		return min_timer + 120 + 60 -- 4 sek
+	end
+	
+	if math.ceil((min_timer + 180) - (stage * 6)) < min_timer then
+		return min_timer
+	end
+	return math.ceil((min_timer + 180) - (stage * 6))
+end
+
+function start_lift_timer(self)
+	lift_timer = 120
+end 
+
+function start_level_generation_timer(self)
+	level_gerneration_timer = 60
+	print("[controller] set gerneration timer")
+end
+	
+function level_done(self)
+	print("[controller] LEVELDONE")
+	stage = stage + 1
+	timer = get_timer(self, stage)
+	print("[controller] timer: "..timer)
+	timer_table = {timer}
+	msg.post(game_gui_path, "start_timer", timer_table)
+	
+	if is_coin_spawn(stage) then
+		spawn_coin()	
+	end
+end	
+	
+function update(self, dt)
+	-- print("timer: "..timer)		
+	
+	if is_pause then
+		return
+	end
+	
+	if not level_generated then
+		return
+	end
+	
+	if delay_move_msg > 0 then
+		delay_move_msg = delay_move_msg - 1
+	else if delay_move_msg ~= -1 then
+		delay_move_msg = -1 
+		msg.post(hero_path, "set_able_to_move", {able_to_move})
+		print("[controller] NO LONGER ABLE TO MOVE")
+		
+		-- coin
+		if coin_position ~= goal_position then
+			msg.post(coin_path, "Controller: disable")
+		end
+		
+		-----------------------------------------------------------
+		--Animation
+		-- msg.post(hero_path, "Controller: change animation", {"small_"..goal_space})
+		print("[controller] Change animation to ".. goal_space)
+		if goal_space < 7 and (hero_position == goal_position) then
+			msg.post(hero_path, "Controller: change animation", {"small_"..goal_space})
+		else
+			if goal_space >= 7 and (hero_position == goal_position) then
+				msg.post(hero_path, "Controller: change animation", {"idle"})
+			else			
+				--msg.post(hero_path, "Controller: change animation", {"dead"}) --<<<<<<<<<<<<<<<----------------- fix für fehlende textur
+			end
+			if hero_position ~= goal_position then
+				msg.post(hero_path, "Controller: dead")
+				go.animate("Gamecontroller_collection:/death_animation_delay_dummi", "scale.y", go.PLAYBACK_ONCE_BACKWARD, 1,
+				go.EASING_LINEAR, 0, 0.1, send_hero_change_animation_to_death_msg)
+			end
+		end
+		-----------------------------------------------------------
+		-- if goal_position == hero_position then
+		-- 	msg.post(game_gui_path, "post_bonus_message")	
+		-- end
+		end
+	end
+
+
+	if timer <= 0 and timer ~= -1 then
+		msg.post(walls_path, "Crush")
+		game_state = "crushed"	
+		is_able_to_insta_crush = false
+		timer = -1
+		return
+	else if timer > 0 then		
+		timer = timer - 1 	
+		end
+	end
+	
+	-- After Crushing
+	if lift_timer > 0 then
+		lift_timer = lift_timer - 1
+	else if lift_timer ~= -1 then
+		lift_timer = -1 
+		msg.post(walls_path, "Lift")
+		msg.post(game_gui_path, "reset_timer")	
+		end
+	end
+	
+	-- After Lifting
+	if level_gerneration_timer > 0 then
+		level_gerneration_timer = level_gerneration_timer - 1
+	else if level_gerneration_timer ~= -1 then
+		level_gerneration_timer = -1 
+		msg.post(walls_path, "generate_level")
+		able_to_move = true
+		msg.post(hero_path, "spawn")
+		msg.post(hero_path, "set_able_to_move", {able_to_move})	
+
+		if waiting_for_pause then
+			execute_pause()			
+		end
+		end
+	end	
+end
+
+function handle_crushed(self)
+	print("[controller] handle_crushed")
+	if goal_position == hero_position then
+		lift_and_reset_timer()
+		points = points + 1 
+		msg.post(game_gui_path, "set_score", {points})			
+		return
+	end
+
+	lives = lives - 1
+
+	if lives < 1 then
+		lives = 0
+	end
+	msg.post(game_gui_path, "Controller: disable_heart", {lives+1})
+	
+	--msg.post(hero_path, "Controller: start_blood")
+	
+	if lives == 0 then
+		-- Keine Leben mehr
+		msg.post(game_gui_path, "Controller: start_game_over_screen", {Highscore = highscore, Score = points, 
+			Bonuscoins = bonuscoins, Is_first_try = is_first_try})
+		game_state = "gameover"
+		if highscore < points then
+			highscore = points	
+			save_data(highscore, bonuscoins)
+		end
+		return
+	end		
+	
+	-- Leben verfügbar
+	msg.post(game_gui_path, "Controller: post_fail_message")	
+	seconds_delay = 4 -- 4 sekunden nach tod
+	delay(seconds_delay, resume_game_after_death, "")
+end
+
+-- lift, stop blood, reset timer, disable text
+function resume_game_after_death()
+	msg.post(hero_path, "Controller: stop_blood")
+	msg.post(game_gui_path, "Controller: delete_fail_message")
+	lift_and_reset_timer()
+end
+
+function lift_and_reset_timer()
+	msg.post(walls_path, "Lift")
+	msg.post(game_gui_path, "reset_timer")	
+	if hero_position == goal_position then
+		go.animate("Gamecontroller_collection:/animation_delay_dummi", "position.x", go.PLAYBACK_ONCE_FORWARD, 100, go.EASING_LINEAR, 0.5, 0, send_hero_change_animation_msg)
+	end
+end
+
+function send_hero_change_animation_msg()
+	msg.post(hero_path, "Controller: change animation", {"idle"})
+end
+
+function send_hero_change_animation_to_death_msg()
+	msg.post(hero_path, "Controller: change animation", {"dead"})
+	msg.post(hero_path, "Controller: start_blood")
+end
+
+--------------------------------------------
+-- Database (Highscore, Bonuscoins)
+--------------------------------------------
+
+function get_save_data()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "saves")
+	local save_file = sys.load(save_file_path)
+	pprint(save_file)
+	
+	if not next(save_file) then
+		print("[controller] empty")
+		highscore = 0
+		bonuscoins = 0
+		sys.save(save_file_path, {highscore = 0, bonuscoins = 0})
+		return
+	end
+	if not save_file.highscore then
+		highscore = 0
+		sys.save(save_file_path, {highscore = 0})
+	else 
+		highscore = save_file.highscore
+	end
+	if not save_file.bonuscoins then
+		bonuscoins = 0
+		sys.save(save_file_path, {bonuscoins = 0})
+	else 
+		bonuscoins = save_file.bonuscoins
+	end	
+	print("[controller] bonuscoins: "..bonuscoins)	
+	print("[controller] highscore: "..highscore)	
+end
+
+function save_data(hscore, bcoins)
+	local save_file_path = sys.get_save_file("DontGetCrushed", "saves")
+	sys.save(save_file_path, {highscore = hscore, bonuscoins = bcoins})
+end
+
+--------------------------------------------
+-- End Database 
+--------------------------------------------
+
+function execute_pause()
+	waiting_for_pause = false
+	is_pause = true
+	print("[controller] start pause")
+	-- hero
+	able_to_move = false
+	msg.post(hero_path, "set_able_to_move", {able_to_move})
+	-- Wall
+	-- nix benötigt nur bei continue
+	-- gui
+	msg.post(game_gui_path, "Controller: start pause")
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("level_generation_done") then
+		level_generated = true
+		level_done()
+		print("[controller] DONE")
+		is_able_to_insta_crush = true
+	end
+	if message_id == hash("level_generation_done_first") then
+		level_generated = true
+		print("[controller] FIRST GENERATION DONE")
+	end	
+	if message_id == hash("crushed") then
+		able_to_move = false
+		delay_able_to_move_msg(self, 10)
+	end	
+		if message_id == hash("WALLS: lifted") then
+		start_level_generation_timer()
+		game_state = "game"
+	end
+	if message_id == hash("crushed_init") then
+		able_to_move = false
+		msg.post(hero_path, "set_able_to_move", {able_to_move})
+		msg.post(walls_path, "Lift")
+	end
+	if message_id == hash("HERO: hero_pos") then
+		hero_position = message[1]
+		
+		if hero_position == coin_position then
+			collect_coin()
+		end
+	end	
+	if message_id == hash("WALLS: goal_pos") then
+		print("[controller] received goal_pos msg")
+		goal_position = message[1]
+		-- DEBUG --
+		-- msg.post(hero_path, "Controller: DEBUG", {goal_position})
+		-- ENDE --		
+	end
+	if message_id == hash("WALLS: goal_space") then
+		goal_space = message[1]
+	end	
+	if message_id == hash("WALLS: crushed_final") then
+		handle_crushed()
+	end	
+	if message_id == hash("Gui: restart") then
+		print("[controller] received restart post")
+		restart()
+	end	
+	if message_id == hash("Gui: back to main menu") then
+		print("[controller] received menu post")
+		msg.post(hero_path, "despawn")
+		msg.post("main:/loader#main", "Controller: load_menu")
+	end	
+	if message_id == hash("Gui: pause_clicked") then
+		print("[controller] received pause post")
+		if is_pause then
+			return
+		end
+		
+		waiting_for_pause = true	
+		print("[controller] waiting for pause")
+	end
+	if message_id == hash("Gui: resume_clicked") then
+		print("[controller] received resume post")
+		if not is_pause then
+			return
+		end	
+		msg.post(game_gui_path, "Controller: resume pause")		
+	end	
+	if message_id == hash("Gui: resume") then
+		print("[controller] received resume final post")
+		if not is_pause then
+			return
+		end	
+		is_pause = false	
+		-- hero
+		able_to_move = true
+		msg.post(hero_path, "set_able_to_move", {able_to_move})		
+		-- wall
+
+		timer = -1
+		msg.post(walls_path, "generate_level")		
+	end	
+	if message_id == hash("Gui: crush_clicked") then
+		print("[controller] received crush post")
+		if timer < 10 then
+			print("[controller] timer to low to crush")
+			return
+		end
+		if not level_generated then
+			print("[controller] level not generated to crush")
+			return
+		end	
+		if not is_able_to_insta_crush then
+			print("[controller] not is_able_to_insta_crush")
+			return
+		end
+
+		is_able_to_insta_crush = false
+		
+		print("[controller] timer"..timer)	
+
+		print("[controller] insta crush")
+		timer = 10	
+		msg.post(game_gui_path, "Controller: insta_crush")	 
+	end	
+	if message_id == hash("Gui: continue_clicked") then
+		if bonuscoins < 20 then
+		 	print("[controller] Not enough coins to buy continue")
+		 	return
+		end
+		continue()	
+	end
+	if message_id == hash("Coin: y") then
+		coin_y = message[1]	
+	end		
+end
+
+function delay_able_to_move_msg(self, time) 
+	delay_move_msg = time	
+end
+
+function continue()
+	is_first_try = false
+	msg.post(game_gui_path, "set_score", {points})
+	msg.post(game_gui_path, "set_bonuscoins", {bonuscoins})
+	msg.post(game_gui_path, "Controller: reset_pause", {0})
+	lives = 1
+	is_pause = false
+	waiting_for_pause = false
+	bonuscoins = bonuscoins - 20
+	save_data(highscore, bonuscoins)
+	
+	resume_game_after_death()
+end
+
+function restart()
+	is_first_try = true
+	msg.post(game_gui_path, "set_score", {0})
+	msg.post(game_gui_path, "set_bonuscoins", {bonuscoins})
+	msg.post(game_gui_path, "Controller: reset_pause", {0})
+	stage = 0
+	points = 0
+	lives = 3
+	is_pause = false
+	waiting_for_pause = false
+	
+	resume_game_after_death()
+end
+
+function on_input(self, action_id, action)
+    if action_id == hash("left") and action.pressed then
+    	msg.post(game_gui_path, "Controller: clicked", {action.x, action.y})
+		--black_out(self)
+	end 
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end
+
+function wake_up_hero()
+	msg.post(hero_path, "spawn")	
+end
+
+--------------------------------------------
+-- coin
+--------------------------------------------
+function is_coin_spawn(level)
+ 	if level < 2 then 
+		return false
+	end
+	if level <= 10 and level % 5 == 0 then
+		return true
+	end
+	if level > 10 and level < 20 and level % 4 == 0 then
+		return true
+	end
+	if level >= 20 and level % 3 == 0 then
+		return true
+	end 	
+	return false
+	--[[
+	math.random(); math.random(); math.random()
+	if level < 10 then
+		rand = math.random(1, 5)
+		if rand == 1 then
+			print("[controller] COIN: "..rand)
+			return true
+		end
+		print("[controller] fail"..rand)  
+		return false
+	end
+	if level < 20 and level >= 10 then
+		rand = math.random(1, 4)
+		if rand == 1 then
+			print("[controller] COIN: "..rand)
+			return true
+		end
+		print("[controller] fail"..rand)  
+		return false
+	end	
+	if level >= 20 then
+		rand = math.random(1, 3)
+		if rand == 1 then
+			print("[controller] COIN: "..rand)
+			return true
+		end
+		print("[controller] fail"..rand)  
+		return false
+	end	
+	]]
+end
+
+function spawn_coin()
+	is_coin_spawned = true
+	math.random(); math.random(); math.random()
+	local new_pos = coin_position
+	for i = 1,40,1 do
+		if coin_position ~= new_pos and new_pos ~= hero_position then
+			print("[controller] pos not equal: "..coin_position.." || "..new_pos.." || "..hero_position)
+			coin_position = new_pos
+			break
+		end
+		print("[controller] pos equal: "..coin_position.." || "..new_pos)
+		new_pos = math.random(1, 9)
+	end	
+	msg.post(coin_path, "Controller: spawn", {coin_position})	
+end
+
+function collect_coin()
+	if not is_coin_spawned then
+		return
+	end
+	is_coin_spawned = false
+	bonuscoins = bonuscoins + 1	
+	msg.post(coin_path, "Controller: collected")
+	msg.post(game_gui_path, "set_bonuscoins", {bonuscoins})
+	msg.post(game_gui_path, "collected", {position = coin_position, y = coin_y})
+	print("[controller] coin collected")
+end
+--------------------------------------------
+-- End coin
+--------------------------------------------
+-- Options
+--------------------------------------------
+function notify_options()
+	msg.post(game_gui_path, "Controller: options", {IS_SOUND = is_sound})
+	msg.post(hero_path, "Controller: options", {IS_SOUND = is_sound})
+	msg.post(walls_path, "Controller: options", {IS_SOUND = is_sound})
+	msg.post(coin_path, "Controller: options", {IS_SOUND = is_sound})
+end
+--------------------------------------------
+-- Database (Options)
+--------------------------------------------
+function get_saved_options()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "options")
+	local save_file = sys.load(save_file_path)	
+	if not next(save_file) then
+		print("[controller] empty")
+		is_sound = true
+		sys.save(save_file_path, {IS_SOUND = is_sound})
+		return
+	end
+	if not save_file.IS_SOUND then
+		is_sound = false
+		sys.save(save_file_path, {IS_SOUND = is_sound})
+	else 
+		is_sound = save_file.IS_SOUND
+	end	
+end
+
+--------------------------------------------
+-- Database (Skins)
+--------------------------------------------
+
+function get_saved_skin_data()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "unlocks")
+	local save_file = sys.load(save_file_path)	
+	if not next(save_file) then
+		print("[controller] empty")
+		sys.save(save_file_path, {Unlocked_table = unlocked_table, Active_skin = active_skin})
+		return
+	end
+	if not save_file.Unlocked_table then
+		sys.save(save_file_path, {Unlocked_table = unlocked_table, Active_skin = active_skin})
+	else 
+		unlocked_table = save_file.Unlocked_table
+	end
+	if not save_file.Active_skin then
+		sys.save(save_file_path, {Unlocked_table = unlocked_table, Active_skin = active_skin})
+	else 
+		active_skin = save_file.Active_skin
+	end	
+end
+
+function save_skin_data(a_skin, u_table)
+	local save_file_path = sys.get_save_file("DontGetCrushed", "unlocks")
+	sys.save(save_file_path, {Unlocked_table = u_table, Active_skin = a_skin})
+end
+--------------------------------------------
+-- End Database 
+--------------------------------------------

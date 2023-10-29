@@ -1,0 +1,806 @@
+animations {
+  id: "hero_idle"
+  images {
+    image: "/hero/images/idle/hero_idle_0.png"
+  }
+  images {
+    image: "/hero/images/idle/hero_idle_1.png"
+  }
+  images {
+    image: "/hero/images/idle/hero_idle_2.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_small_3"
+  images {
+    image: "/hero/images/small_3/hero_small3_0.png"
+  }
+  images {
+    image: "/hero/images/small_3/hero_small3_1.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_small_4"
+  images {
+    image: "/hero/images/small_4/hero_small4_0.png"
+  }
+  images {
+    image: "/hero/images/small_4/hero_small4_1.png"
+  }
+  images {
+    image: "/hero/images/small_4/hero_small4_2.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_start_teleport"
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_0.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_1.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_2.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_3.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_4.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_5.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 24
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_end_teleport"
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_0.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_1.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_2.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_3.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_4.png"
+  }
+  images {
+    image: "/hero/images/teleport/hero/hero_port_start_5.png"
+  }
+  playback: PLAYBACK_ONCE_BACKWARD
+  fps: 24
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_dead"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_small_5"
+  images {
+    image: "/hero/images/small_5/hero_small5_0.png"
+  }
+  images {
+    image: "/hero/images/small_5/hero_small5_1.png"
+  }
+  images {
+    image: "/hero/images/small_5/hero_small5_2.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_small_6"
+  images {
+    image: "/hero/images/small_6/hero_small6_0001.png"
+  }
+  images {
+    image: "/hero/images/small_6/hero_small6_0002.png"
+  }
+  images {
+    image: "/hero/images/small_6/hero_small6_0003.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_idle"
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0001.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0002.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0003.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0004.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0005.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0006.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0007.png"
+  }
+  images {
+    image: "/hero/images/idle/sir/sir_idle_0008.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 14
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_thumb"
+  images {
+    image: "/hero/images/thumbnail/sir_thumb.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_start_teleport"
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0001.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0002.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0003.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0004.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0005.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0006.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0007.png"
+  }
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 28
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_end_teleport"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0007.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0006.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0005.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0004.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0003.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0002.png"
+  }
+  images {
+    image: "/hero/images/teleport/sir/sir_port_start_0001.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 28
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_small_6"
+  images {
+    image: "/hero/images/small_6/sir/sir_small_06_0001.png"
+  }
+  images {
+    image: "/hero/images/small_6/sir/sir_small_06_0002.png"
+  }
+  images {
+    image: "/hero/images/small_6/sir/sir_small_06_0003.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_small_5"
+  images {
+    image: "/hero/images/small_5/sir/sir_small_05_0001.png"
+  }
+  images {
+    image: "/hero/images/small_5/sir/sir_small_05_0002.png"
+  }
+  images {
+    image: "/hero/images/small_5/sir/sir_small_05_0003.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_small_4"
+  images {
+    image: "/hero/images/small_4/sir/sir_small_04_0001.png"
+  }
+  images {
+    image: "/hero/images/small_4/sir/sir_small_04_0002.png"
+  }
+  images {
+    image: "/hero/images/small_4/sir/sir_small_04_0003.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_small_3"
+  images {
+    image: "/hero/images/small_3/sir/sir_small_03_0002.png"
+  }
+  images {
+    image: "/hero/images/small_3/sir/sir_small_03_0003.png"
+  }
+  images {
+    image: "/hero/images/small_3/sir/sir_small_03_0004.png"
+  }
+  images {
+    image: "/hero/images/small_3/sir/sir_small_03_0005.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_dead"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_idle"
+  images {
+    image: "/hero/images/idle/batman/batman_idle_0001.png"
+  }
+  images {
+    image: "/hero/images/idle/batman/batman_idle_0002.png"
+  }
+  images {
+    image: "/hero/images/idle/batman/batman_idle_0003.png"
+  }
+  images {
+    image: "/hero/images/idle/batman/batman_idle_0004.png"
+  }
+  images {
+    image: "/hero/images/idle/batman/batman_idle_0005.png"
+  }
+  images {
+    image: "/hero/images/idle/batman/batman_idle_0006.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_thumb"
+  images {
+    image: "/hero/images/thumbnail/batman_thumb.png"
+  }
+  playback: PLAYBACK_NONE
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_start_teleport"
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0001.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0002.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0003.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0004.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0005.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0006.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0007.png"
+  }
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 28
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_end_teleport"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0007.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0006.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0005.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0004.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0003.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0002.png"
+  }
+  images {
+    image: "/hero/images/teleport/batman/batman_port_start_0001.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 28
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_small_6"
+  images {
+    image: "/hero/images/small_6/batman/batman_small_06_0001.png"
+  }
+  images {
+    image: "/hero/images/small_6/batman/batman_small_06_0002.png"
+  }
+  images {
+    image: "/hero/images/small_6/batman/batman_small_06_0003.png"
+  }
+  images {
+    image: "/hero/images/small_6/batman/batman_small_06_0004.png"
+  }
+  images {
+    image: "/hero/images/small_6/batman/batman_small_06_0005.png"
+  }
+  images {
+    image: "/hero/images/small_6/batman/batman_small_06_0006.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_small_5"
+  images {
+    image: "/hero/images/small_5/batman/batman_small_05_0001.png"
+  }
+  images {
+    image: "/hero/images/small_5/batman/batman_small_05_0002.png"
+  }
+  images {
+    image: "/hero/images/small_5/batman/batman_small_05_0003.png"
+  }
+  images {
+    image: "/hero/images/small_5/batman/batman_small_05_0004.png"
+  }
+  images {
+    image: "/hero/images/small_5/batman/batman_small_05_0005.png"
+  }
+  images {
+    image: "/hero/images/small_5/batman/batman_small_05_0006.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_small_4"
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0001.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0002.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0003.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0004.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0005.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0006.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0007.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0008.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0009.png"
+  }
+  images {
+    image: "/hero/images/small_4/batman/batman_small_04_0010.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_small_3"
+  images {
+    image: "/hero/images/small_3/batman/batman_small_03_0001.png"
+  }
+  images {
+    image: "/hero/images/small_3/batman/batman_small_03_0002.png"
+  }
+  images {
+    image: "/hero/images/small_3/batman/batman_small_03_0003.png"
+  }
+  images {
+    image: "/hero/images/small_3/batman/batman_small_03_0004.png"
+  }
+  images {
+    image: "/hero/images/small_3/batman/batman_small_03_0005.png"
+  }
+  images {
+    image: "/hero/images/small_3/batman/batman_small_03_0006.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_dead"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 1
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_idle"
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0001.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0002.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0003.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0004.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0005.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0006.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0007.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0008.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0009.png"
+  }
+  images {
+    image: "/hero/images/idle/clown/clown_idle_0010.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_thumb"
+  images {
+    image: "/hero/images/thumbnail/clown_thumb.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_start_teleport"
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0022.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0021.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0020.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0019.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0018.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0017.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0016.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0015.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0014.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0013.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0012.png"
+  }
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 42
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_end_teleport"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0012.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0013.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0014.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0015.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0016.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0017.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0018.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0019.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0020.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0021.png"
+  }
+  images {
+    image: "/hero/images/teleport/clown/clown_start_port_0022.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 42
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_small_6"
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0001.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0002.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0003.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0004.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0005.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0006.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0007.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0008.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0009.png"
+  }
+  images {
+    image: "/hero/images/small_6/clown/clown_small6_0010.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_small_5"
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0001.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0002.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0003.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0004.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0005.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0006.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0007.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0008.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0009.png"
+  }
+  images {
+    image: "/hero/images/small_5/clown/clown_small5_0010.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_small_4"
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0001.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0002.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0003.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0004.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0005.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0006.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0007.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0008.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0009.png"
+  }
+  images {
+    image: "/hero/images/small_4/clown/clown_small4_0010.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_small_3"
+  images {
+    image: "/hero/images/small_3/clown/clown_small3_0003.png"
+  }
+  images {
+    image: "/hero/images/small_3/clown/clown_small3_0004.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_dead"
+  images {
+    image: "/hero/images/hero_dead.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 1
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 1
+extrude_borders: 1
+inner_padding: 0

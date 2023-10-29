@@ -1,0 +1,175 @@
+animations {
+  id: "hero_sad"
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0001.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0002.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0003.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0004.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0005.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0006.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0007.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0008.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0009.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0010.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0011.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0012.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0013.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0014.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/hero_sad_0015.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_sad"
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0002.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0003.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0004.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0005.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0006.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0007.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0008.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0009.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0010.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0011.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0012.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0013.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0014.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0015.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0016.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0017.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/sir/sir_sad0018.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_sad"
+  images {
+    image: "/gui/images/hero_sad/batman/batman_sad_0001.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/batman/batman_sad_0002.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/batman/batman_sad_0003.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/batman/batman_sad_0004.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/batman/batman_sad_0005.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/batman/batman_sad_0006.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_sad"
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0001.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0002.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0003.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0004.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0005.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0006.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0007.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0008.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0009.png"
+  }
+  images {
+    image: "/gui/images/hero_sad/clown/clown_sad_0010.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 5
+extrude_borders: 0
+inner_padding: 0

@@ -1,0 +1,618 @@
+local amount_of_x_grid = 9
+local screen_width = 720
+local screen_height = 1280
+
+local flimmer_bug_fix_timer = 5
+
+local heading_x = 0
+local heading_y = 0
+
+local middle_bottom = 0.275 -- percent / 100
+local middle_top = 0.775
+local max_bottom = 0.40 -- 35
+local max_top = 0.65 -- 65
+local min_bottom = 0.2
+local min_top = 0.85
+
+local button_distance = 20
+
+local time_to_extend = -1
+
+local start_button_scale_y = 0
+local start_button_scale_x = 0
+local help_button_scale_y = 0
+local help_button_scale_x = 0
+
+local start_button_x = 0
+local start_button_y = 0
+local options_button_x = 0
+local options_button_y = 0
+local help_button_x = 0
+local help_button_y = 0
+local start_button_size_x = 0
+local start_button_size_y = 0
+local options_button_size_x = 0
+local options_button_size_y = 0
+local help_button_size_x = 0
+local help_button_size_y = 0
+
+local start_button_size_x = 0
+local start_button_size_y = 0
+local start_button_min_y = 0
+local start_button_max_y = 0
+
+local options_button_size_x = 0
+local options_button_size_y = 0
+local options_button_min_y = 0
+local options_button_max_y = 0
+
+local help_button_size_x = 0
+local help_button_size_y = 0
+local help_button_min_y = 0
+local help_button_max_y = 0
+
+local buttons_enabled = false
+
+local logo_alpha = 0
+local logo_timer = 150
+
+local logo_init_finished = false
+
+local heading_y = 0
+local heading_x = 0
+
+local hero_path = "Mainmenu_collection:/menu_gui/hero#hero"
+
+local walls_y = {}
+
+local buy_button_enabled = false
+
+local fade_out_buy_fail_timer = -1
+local fade_out_unlock_text_timer = -1
+
+local SYSTEM = ""
+
+--------------------------------------------
+-- options data
+--------------------------------------------
+local is_sound = true
+
+
+function init(self)	
+	-------------------------
+	-- Heading
+	-------------------------
+	heading_y = screen_height - (screen_height * 0.2)  + (screen_height * 0.2 * 0.7)
+	heading_x = screen_width/2
+	gui.set_position(gui.get_node("heading"), vmath.vector3(heading_x, screen_height + gui.get_size(gui.get_node("heading")).y, 0))
+	
+	-------------------------
+	-- Start
+	-------------------------	
+	local start_button = gui.get_node("start_button")	
+	local start_button_y = (screen_height * 0.6) + (gui.get_size(start_button).y / 2)
+	local start_button_x = screen_width/2
+	gui.set_position(start_button, vmath.vector3(start_button_x, start_button_y, 0))
+	
+	start_button_scale_y = gui.get_scale(start_button).y
+	start_button_scale_x = gui.get_scale(start_button).x
+	
+	-------------------------
+	-- Help
+	-------------------------	
+	local help_button = gui.get_node("help_button")	
+	local help_button_y = (screen_height * 0.5) + (gui.get_size(help_button).y / 2)
+	local help_button_x = screen_width/2
+	gui.set_position(help_button, vmath.vector3(help_button_x, help_button_y, 0))
+	
+	help_button_scale_y = gui.get_scale(help_button).y
+	help_button_scale_x = gui.get_scale(help_button).x
+
+	-------------------------
+	-- Highscore
+	-------------------------
+	local highscore_node = gui.get_node("highscore")
+	local highscore_width = gui.get_text_metrics("SovjetBox", "Highscore:")["width"]
+	local highscore_height = gui.get_text_metrics_from_node(highscore_node)
+	local highscore_x_scale = ((screen_width / 2) - (0.15 * screen_width)) / highscore_width
+	gui.set_scale(highscore_node, vmath.vector3(highscore_x_scale, highscore_x_scale, 1))
+	gui.set_position(highscore_node, vmath.vector3(screen_width * 0.2, screen_height*0.45, 0))
+
+	-------------------------
+	-- Skincoins
+	-------------------------
+	local skincoins_node = gui.get_node("skincoins")
+	local skincoins_width = gui.get_text_metrics("SovjetBox", "Skincoins:")["width"]
+	local skincoins_x_scale = highscore_x_scale
+	gui.set_scale(skincoins_node, vmath.vector3(skincoins_x_scale, skincoins_x_scale, 1))
+	gui.set_position(skincoins_node, vmath.vector3(screen_width * 0.8, screen_height*0.45, 0)) 
+	
+	-------------------------
+	-- coin_trigger
+	-------------------------
+	local coin_trigger_node = gui.get_node("coin_trigger")
+	local coin_trigger_size_x = gui.get_size(coin_trigger_node).x
+	local coin_trigger_scale = ((screen_width / amount_of_x_grid) + 10) / coin_trigger_size_x
+	local x = (gui.get_width() / amount_of_x_grid) * 0.5 + 8 * (gui.get_width() / amount_of_x_grid)
+	gui.set_scale(coin_trigger_node, vmath.vector3(coin_trigger_scale, coin_trigger_scale*2.5, 1))
+	gui.set_position(coin_trigger_node, vmath.vector3(x, -100, 0))
+	
+	-------------------------
+	-- Buy
+	-------------------------
+	local buy_grid = gui.get_node("buy_text_grid")
+	local buy_grid_scale = gui.get_scale(buy_grid).x
+	gui.set_position(buy_grid, vmath.vector3(screen_width * 0.5, screen_height * 0.6, 0))
+	gui.set_scale(buy_grid, vmath.vector3(0, 0, 1))	
+	
+	local buy_bg_node = gui.get_node("buy_background")
+	local buy_bg_size_x = gui.get_size(buy_bg_node).x
+	local buy_bg_size_y = gui.get_size(buy_bg_node).y
+	local buy_bg_scale = (screen_width * 0.5) / (buy_bg_size_x * buy_grid_scale)
+	gui.set_scale(buy_bg_node, vmath.vector3(buy_bg_scale, buy_bg_scale, 1))
+	gui.set_position(buy_bg_node, vmath.vector3(0, 0, 0))	
+	
+	local buy_fail_node = gui.get_node("buy_fail_text")
+	local buy_fail_size_x = gui.get_size(buy_fail_node).x
+	color = gui.get_color(buy_fail_node)
+	gui.set_color(buy_fail_node, vmath.vector4(color.x, color.y, color.z, 0))	
+	gui.set_position(buy_fail_node, vmath.vector3(0, buy_bg_size_y * 0.5 * buy_bg_scale, 1))	
+	
+	
+	--[[
+	start_button_size_x = gui.get_size(gui.get_node("start_button")).x
+	start_button_size_y = gui.get_size(gui.get_node("start_button")).y
+	options_button_size_x = gui.get_size(gui.get_node("options_button")).x
+	options_button_size_y = gui.get_size(gui.get_node("options_button")).y
+	help_button_size_x = gui.get_size(gui.get_node("help_button")).x
+	help_button_size_y = gui.get_size(gui.get_node("help_button")).y
+
+	
+	start_button_size_x = gui.get_text_metrics("SovjetBox", "START")["width"] * gui.get_scale(gui.get_node("start_button")).x
+	start_button_size_y = gui.get_text_metrics("SovjetBox", "START")["height"] * gui.get_scale(gui.get_node("start_button")).y
+	start_button_min_y = start_button_y - (start_button_size_y / 2) + gui.get_text_metrics("SovjetBox", "START")["max_descent"]  	
+	start_button_max_y = start_button_min_y + start_button_size_y + gui.get_text_metrics("SovjetBox", "START")["max_descent"] 
+
+	options_button_size_x = gui.get_text_metrics("SovjetBox", "OPTIONS")["width"] * gui.get_scale(gui.get_node("options_button")).x
+	options_button_size_y = gui.get_text_metrics("SovjetBox", "OPTIONS")["height"] * gui.get_scale(gui.get_node("options_button")).y
+	options_button_min_y = options_button_y - (options_button_size_y / 2) + gui.get_text_metrics("SovjetBox", "OPTIONS")["max_descent"]  	
+	options_button_max_y = options_button_min_y + options_button_size_y + gui.get_text_metrics("SovjetBox", "OPTIONS")["max_descent"] 
+
+	help_button_size_x = gui.get_text_metrics("SovjetBox", "HELP")["width"] * gui.get_scale(gui.get_node("help_button")).x
+	help_button_size_y = gui.get_text_metrics("SovjetBox", "HELP")["height"] * gui.get_scale(gui.get_node("help_button")).y
+	help_button_min_y = help_button_y - (help_button_size_y / 2) + gui.get_text_metrics("SovjetBox", "HELP")["max_descent"]  	
+	help_button_max_y = help_button_min_y + help_button_size_y + gui.get_text_metrics("SovjetBox", "HELP")["max_descent"] 
+	]]
+
+	local sound_button = gui.get_node("sound_button")
+	local sound_button_size_x = gui.get_size(sound_button).x
+	local sound_button_scale = ((screen_width / amount_of_x_grid) - 10) / sound_button_size_x
+	local x = 30 --(screen_width / amount_of_x_grid) * 0.5
+	local x = (gui.get_width() / amount_of_x_grid) * 0.5
+	gui.set_scale(sound_button, vmath.vector3(sound_button_scale, sound_button_scale, 1))
+	gui.set_position(sound_button, vmath.vector3(x, -100, 0))
+	-- gui_pos = gui.get_screen_position(sound_button)
+	-- print("[menu_gui] gui_pos: "..gui_pos.x)
+	-- print("[menu_gui] x: "..x)
+	-- if gui_pos.x ~= x then
+	-- 	x = x  - (gui_pos.x - x)
+	-- 	print("[menu_gui] x: "..x)
+	-- 	gui.set_position(sound_button, vmath.vector3(x, -100, 0))
+	-- end	
+	
+	start_menu_animations(self)	
+end
+
+function start_menu_animations(self)
+	gui.animate(gui.get_node("heading"), gui.PROP_POSITION, vmath.vector3(heading_x, heading_y, 0), gui.EASING_OUTBOUNCE, 0.5, 0.5)
+end
+
+function blink_start_button(self) 
+	gui.animate(gui.get_node("start_button"), gui.PROP_SCALE, vmath.vector3(start_button_scale_x + 0.1, start_button_scale_y + 0.1, 1), gui.EASING_OUTBOUNCE, 0.3, 0, blink_back_start_button)
+end
+
+function blink_back_start_button(self)
+	gui.animate(gui.get_node("start_button"), gui.PROP_SCALE, vmath.vector3(start_button_scale_x, start_button_scale_y, 1), gui.EASING_OUTBOUNCE, 0.3)
+end
+
+function is_start_button(x, y)
+	return gui.pick_node(gui.get_node("start_button"), x, y)
+end
+
+function is_coin_button(x, y)
+	return gui.pick_node(gui.get_node("coin_trigger"), x, y) 
+end
+
+
+function is_options_button(x, y)
+	if x < options_button_x + (options_button_size_x / 2) and x > options_button_x - (options_button_size_x / 2) then
+		if y < options_button_max_y and y > options_button_min_y then
+			return true
+		end
+	end
+	return false
+end
+
+function is_help_button(x, y)
+	return gui.pick_node(gui.get_node("help_button"), x, y)
+end
+
+function is_sound_button(x, y)
+	return gui.pick_node(gui.get_node("sound_button"), x, y)
+end
+
+function is_buy_button(x, y)
+	return gui.pick_node(gui.get_node("buy_text_grid"), x, y) or gui.pick_node(gui.get_node("buy_background"), x, y)
+end
+
+local fade_out_ads_text_timer = -1
+
+function update(self, dt)
+	if fade_out_ads_text_timer >= 0 then
+		fade_out_options_text_timer = fade_out_ads_text_timer - 1
+		node = gui.get_node("options_text")
+		color = gui.get_color(node)
+		alpha = color["w"] - (1/60)
+		if alpha < 0 then
+			alpha = 0
+		end
+		gui.set_color(node, vmath.vector4(color["x"], color["y"], color["z"], alpha))
+		position = gui.get_position(node)
+		gui.set_position(node, vmath.vector3(position.x, position.y + 0.2, position.z))
+	end	
+	if fade_out_buy_fail_timer >= 0 then
+		fade_out_buy_fail_timer = fade_out_buy_fail_timer - 1
+		node = gui.get_node("buy_fail_text")
+		color = gui.get_color(node)
+		alpha = color["w"] - (1/60)
+		if alpha < 0 then
+			alpha = 0
+		end
+		gui.set_color(node, vmath.vector4(color["x"], color["y"], color["z"], alpha))
+		position = gui.get_position(node)
+		gui.set_position(node, vmath.vector3(position.x, position.y + 0.2, position.z))
+	end	
+	if fade_out_unlock_text_timer >= 0 then
+		fade_out_unlock_text_timer = fade_out_unlock_text_timer - 1
+		node = gui.get_node("unlock_text")
+		color = gui.get_color(node)
+		alpha = color["w"] - (1/60)
+		if alpha < 0 then
+			alpha = 0
+		end
+		gui.set_color(node, vmath.vector4(color["x"], color["y"], color["z"], alpha))
+		position = gui.get_position(node)
+		gui.set_position(node, vmath.vector3(position.x, position.y + 0.2, position.z))
+	end		
+	
+	if flimmer_bug_fix_timer > 0 then
+		flimmer_bug_fix_timer = flimmer_bug_fix_timer - 1
+	elseif flimmer_bug_fix_timer == 0 then
+		flimmer_bug_fix_timer = -1	
+		gui.set_enabled(gui.get_node("Start_Flimmer_bug_fix"), false)
+	end	
+	
+	if time_to_extend == 0 then
+		blink_start_button(self)
+		time_to_extend = -1
+	end
+	if time_to_extend > 0 then
+		time_to_extend = time_to_extend - 1
+	end
+	--[[
+	start_button_size_x = gui.get_text_metrics("SovjetBox", "START")["width"] * gui.get_scale(gui.get_node("start_button")).x
+	start_button_size_y = gui.get_text_metrics("SovjetBox", "START")["height"] * gui.get_scale(gui.get_node("start_button")).y
+	start_button_min_y = start_button_y - (start_button_size_y / 2) + gui.get_text_metrics("SovjetBox", "START")["max_descent"]  	
+	start_button_max_y = start_button_min_y + start_button_size_y + gui.get_text_metrics("SovjetBox", "START")["max_descent"] 
+
+	options_button_size_x = gui.get_text_metrics("SovjetBox", "OPTIONS")["width"] * gui.get_scale(gui.get_node("options_button")).x
+	options_button_size_y = gui.get_text_metrics("SovjetBox", "OPTIONS")["height"] * gui.get_scale(gui.get_node("options_button")).y
+	options_button_min_y = options_button_y - (options_button_size_y / 2) + gui.get_text_metrics("SovjetBox", "OPTIONS")["max_descent"]  	
+	options_button_max_y = options_button_min_y + options_button_size_y + gui.get_text_metrics("SovjetBox", "OPTIONS")["max_descent"] 
+
+	help_button_size_x = gui.get_text_metrics("SovjetBox", "HELP")["width"] * gui.get_scale(gui.get_node("help_button")).x
+	help_button_size_y = gui.get_text_metrics("SovjetBox", "HELP")["height"] * gui.get_scale(gui.get_node("help_button")).y
+	help_button_min_y = help_button_y - (help_button_size_y / 2) + gui.get_text_metrics("SovjetBox", "HELP")["max_descent"]  	
+	help_button_max_y = help_button_min_y + help_button_size_y + gui.get_text_metrics("SovjetBox", "HELP")["max_descent"] 
+	]]
+	
+	-- Sound, Help Button
+	if walls_y then
+		if walls_y[1] then
+			local node = gui.get_node("sound_button")
+			local y = walls_y[1] + gui.get_size(node).y * 0.5 * gui.get_scale(node).y + 5
+			gui.set_position(node, vmath.vector3(gui.get_position(node).x, y, 0))
+		end
+		if walls_y[9] then
+			local node = gui.get_node("coin_trigger")
+			local y = walls_y[9]-- + gui.get_size(node).y * 0.5 * gui.get_scale(node).y + 5
+			gui.set_position(node, vmath.vector3(gui.get_position(node).x, y, 0))
+		end		
+	end	
+	
+		
+end
+
+function on_message(self, message_id, message, sender)	
+	if message_id == hash("generation_started") then
+		time_to_extend = message[1]
+		return
+	end
+	if message_id == hash("clicked") then
+		x = message[1]
+		y = message[2]
+		if is_start_button(x, y) and buttons_enabled then
+			print("[Menu_gui] CLICKED ONTO START")
+			print("[Menu_gui] buttons disabled")
+			msg.post("Mainmenu_collection:/controller#main_menu_controller", "start_clicked")
+			unload()
+			buttons_enabled = false
+			play_click_sound()
+			return
+		end
+		if is_options_button(x, y) and buttons_enabled then
+			print("[Menu_gui] CLICKED ONTO OPTIONS")
+			print("[Menu_gui] buttons disabled")
+			msg.post("Mainmenu_collection:/controller#main_menu_controller", "options_clicked")
+			--buttons_enabled = false
+			play_click_sound()
+			show_options_text()
+			return
+		end	
+		if is_help_button(x, y) and buttons_enabled then
+			print("[Menu_gui] CLICKED ONTO HELP")
+			print("[Menu_gui] buttons disabled")
+			msg.post("Mainmenu_collection:/controller#main_menu_controller", "help_clicked")
+			buttons_enabled = false
+			play_click_sound()
+			return
+		end	
+		if is_sound_button(x, y) then
+			is_sound = not is_sound
+			play_click_sound()
+			msg.post("Mainmenu_collection:/controller#main_menu_controller", "sound_clicked")
+		end	
+		if is_coin_button(x, y) then -- Add ads logic
+			--show_ads_text()
+			--msg.post("Mainmenu_collection:/controller#main_menu_controller", "CHEAT_COINS")
+			msg.post("Mainmenu_collection:/controller#main_menu_controller", "ADS_clicked")
+		end
+		if is_buy_button(x, y) and buy_button_enabled then
+			buy_button_enabled = false
+			play_click_sound()
+			msg.post("Mainmenu_collection:/controller#main_menu_controller", "buy_clicked")
+			
+		end
+	end
+	if message_id == hash("buttons_enabled") then
+		print("[Menu_gui] Enable_buttons")
+		buttons_enabled = true
+		return
+	end	
+	if message_id == hash("start_init") then
+		start_menu_animations(self)
+		return
+	end		
+	if message_id == hash("Main_menu_controller: set data") then
+		gui.set_text(gui.get_node("highscore"), "Highscore:\n"..message.Highscore)
+		gui.set_text(gui.get_node("skincoins"), "Bonuscoins:\n"..message.Bonuscoins)
+		return
+	end	
+	if message_id == hash("Main_menu_controller: options") then
+		is_sound = message.IS_SOUND
+		execute_options()
+		return
+	end	
+	if message_id == hash("walls") then
+		walls_y = message
+	end
+	if message_id == hash("Controller: show_buy_msg") then
+		buttons_enabled = false
+		gui.animate(gui.get_node("buy_text_grid"), gui.PROP_SCALE, vmath.vector3(0.8, 0.8, 1), gui.EASING_OUTBOUNCE, 0.5, 0.2, function() buy_button_enabled = true end)
+		gui.set_text(gui.get_node("cost_text"), "( "..message[1].." Bonuscoins )")	
+	
+		local color = gui.get_color(gui.get_node("start_button"))
+		gui.animate(gui.get_node("start_button"), gui.PROP_COLOR, vmath.vector4(color.x, color.y, color.z, 0), gui.EASING_LINEAR, 0.2)
+		gui.animate(gui.get_node("help_button"), gui.PROP_COLOR, vmath.vector4(color.x, color.y, color.z, 0), gui.EASING_LINEAR, 0.2)
+	end
+	if message_id == hash("Controller: hide_buy_msg") then
+		buttons_enabled = true
+		gui.animate(gui.get_node("buy_text_grid"), gui.PROP_SCALE, vmath.vector3(0, 0, 1), gui.EASING_OUTEXPO, 0.3, 0, function() buy_button_enabled = false end)
+	
+		local color = gui.get_color(gui.get_node("start_button"))
+		gui.animate(gui.get_node("start_button"), gui.PROP_COLOR, vmath.vector4(color.x, color.y, color.z, 1), gui.EASING_LINEAR, 0.2, 0.25)
+		gui.animate(gui.get_node("help_button"), gui.PROP_COLOR, vmath.vector4(color.x, color.y, color.z, 1), gui.EASING_LINEAR, 0.2, 0.25)
+	end
+	if message_id == hash("Controller: fail_buy") then
+		show_buy_fail_text()
+		buy_button_enabled = true
+	end
+	if message_id == hash("Controller: buy") then
+		gui.animate(gui.get_node("heading"), gui.PROP_COLOR, gui.get_color(gui.get_node("heading")), gui.EASING_LINEAR, 0.5, 0, play_buy_sound)
+		buy_button_enabled = false
+		show_unlock_text()
+		
+		gui.animate(gui.get_node("buy_text_grid"), gui.PROP_SCALE, vmath.vector3(0, 0, 1), gui.EASING_OUTEXPO, 0.3)
+	
+		local color = gui.get_color(gui.get_node("start_button"))
+		gui.animate(gui.get_node("start_button"), gui.PROP_COLOR, vmath.vector4(color.x, color.y, color.z, 1), gui.EASING_LINEAR, 0.2, 1.2)
+		gui.animate(gui.get_node("help_button"), gui.PROP_COLOR, vmath.vector4(color.x, color.y, color.z, 1), gui.EASING_LINEAR, 0.2, 1.2, function() buttons_enabled = true end)
+	end	
+	if message_id == hash("Controller: swiped") then
+		play_swipe_sound()
+	end	
+	if message_id == hash("Controller: show_ads_text") then
+		show_ads_text()
+	end
+	if message_id == hash("Controller: show_reward_text") then
+		start_display_reward()
+	end
+	if message_id == hash("Main_menu_controller: system") then
+		SYSTEM = message.System
+	end
+end
+
+--------------------------------------------
+-- OPTIONS
+--------------------------------------------
+function execute_options()
+	if is_sound then
+		gui.play_flipbook(gui.get_node("sound_button"), "sound_active")
+	else 
+		gui.play_flipbook(gui.get_node("sound_button"), "sound_mute")
+	end	
+end
+
+--------------------------------------------
+-- OPTIONS not valid
+--------------------------------------------
+function show_ads_text()
+	node = gui.get_node("options_text")
+	color = gui.get_color(node)
+	fade_out_ads_text_timer = -1
+	gui.set_position(node, vmath.vector3(screen_width * 0.5, screen_height * 0.75, 0))
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_color(node, vmath.vector4(color.x, color.y, color.z, 1))
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.3, 0.3, 1), gui.EASING_OUTBOUNCE, 0.5, 0.2, fade_out_ads_text)
+end
+
+function fade_out_ads_text()
+	node = gui.get_node("options_text")
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.3, 0.3, 1), gui.EASING_OUTBOUNCE, 0.6, 0, function() fade_out_ads_text_timer = 60	
+	end)
+end
+--------------------------------------------
+-- End OPTIONS not valid
+--------------------------------------------
+
+--------------------------------------------
+-- Reward ADS
+--------------------------------------------
+function start_display_reward()
+	local node = gui.get_node("Reward_coin_text")
+	local x = screen_width * 0.5
+	local y = screen_height * 0.6
+	
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_position(node, vmath.vector3(x, y, 1))
+	gui.set_text(node, "+1 Bonuscoins")	
+	play_buy_sound()
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.55, 0.55, 1), gui.EASING_OUTBOUNCE, 0.1, 0.5, function() bounce_reward(2) end)
+end
+
+function bounce_reward(i) 
+	local node = gui.get_node("Reward_coin_text")
+	play_reward_sound()
+	if i == 11 then
+		gui.animate(node, gui.PROP_SCALE, vmath.vector3(0, 0, 1), gui.EASING_INBOUNCE, 0.3, 0.5)
+		return
+	end
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.65, 0.65, 1), gui.EASING_OUTBOUNCE, 0.1, 0, function() bounce_back_reward(i) end)
+end
+
+function bounce_back_reward(i)
+	local node = gui.get_node("Reward_coin_text")
+	gui.set_text(node, "+"..i.." Bonuscoins")	
+	i = i + 1
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.55, 0.55, 1), gui.EASING_OUTBOUNCE, 0.1, 0, function() bounce_reward(i) end)
+end
+
+--------------------------------------------
+-- End Reward ADS
+--------------------------------------------
+
+--------------------------------------------
+-- Buy Fail
+--------------------------------------------
+function show_buy_fail_text()
+	play_error_sound()
+	node = gui.get_node("buy_fail_text")
+	color = gui.get_color(node)
+	fade_out_buy_fail_timer = -1
+	gui.set_position(node, vmath.vector3(0, 70, 0))
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_color(node, vmath.vector4(color.x, color.y, color.z, 1))
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.25, 0.25, 1), gui.EASING_OUTBOUNCE, 0.5, 0.2, fade_out_fail_text)
+end
+
+function fade_out_fail_text()
+	node = gui.get_node("buy_fail_text")
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.25, 0.25, 1), gui.EASING_OUTBOUNCE, 0.6, 0, function() fade_out_buy_fail_timer = 60	
+	end)
+end
+--------------------------------------------
+-- End Buy Fail
+--------------------------------------------
+
+--------------------------------------------
+-- Unlock
+--------------------------------------------
+function show_unlock_text()
+	node = gui.get_node("unlock_text")
+	color = gui.get_color(node)
+	fade_out_unlock_text_timer = -1
+	gui.set_position(node, vmath.vector3(0.5*screen_width, 0.5*screen_height, 0))
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_color(node, vmath.vector4(color.x, color.y, color.z, 1))
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.45, 0.45, 1), gui.EASING_OUTBOUNCE, 0.5, 0.2, fade_out_unlock_text)
+end
+
+function fade_out_unlock_text()
+	node = gui.get_node("unlock_text")
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.45, 0.45, 1), gui.EASING_OUTBOUNCE, 0.6, 0, function() fade_out_unlock_text_timer = 60	
+	end)
+end
+--------------------------------------------
+-- End Unlock
+--------------------------------------------
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function unload(self)
+	--gui.animate("heading", "position.y", go.PLAYBACK_ONCE_FORWARD, screen_height + 200, go.EASING_OUTBOUNCE, 1, 0)	
+	gui.animate(gui.get_node("heading"), gui.PROP_POSITION, vmath.vector3(screen_width/2, screen_height + 200, 0), gui.EASING_OUTBOUNCE, 0.5)
+end
+
+--------------------------------------------
+-- Sounds
+--------------------------------------------
+
+function play_click_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#click_sound", "play_sound", {gain = 1})
+end
+
+function play_error_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#error_sound", "play_sound", {gain = 0.8})
+end
+
+function play_buy_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#buy_sound", "play_sound", {gain = 0.8})
+end
+
+function play_swipe_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#swipe_sound", "play_sound", {gain = 0.3})
+end	
+
+function play_reward_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#reward_sound", "play_sound", {gain = 0.8})	
+end
+	
+

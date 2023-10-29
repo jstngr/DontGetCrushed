@@ -1,0 +1,59 @@
+local screen_width = 720
+local screen_height = 1280
+
+local logo_alpha = 0
+local logo_timer = 150
+
+local logo_init_finished = false
+
+function init(self)
+	print("[start_screen_controller] Init")
+	logo_x = screen_width / 2
+	logo_y = screen_height / 2
+	gui.set_position(gui.get_node("logo"), vmath.vector3(logo_x, logo_y, 0))
+	gui.set_color(gui.get_node("logo"), vmath.vector4(1, 1, 1, logo_alpha))	
+	msg.post("#sound", "play_sound", {gain = 1})
+
+end
+
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	if logo_timer > 0 then
+		if logo_timer > 50 then
+			logo_alpha = logo_alpha + 0.01
+			gui.set_color(gui.get_node("logo"), vmath.vector4(1, 1, 1, logo_alpha))	
+		end
+		if logo_timer < 40 and logo_timer > 30 then
+			logo_alpha = logo_alpha - 1/10
+			gui.set_color(gui.get_node("logo"), vmath.vector4(1, 1, 1, logo_alpha))	
+		end	
+		if logo_timer == 29 then
+			gui.set_color(gui.get_node("logo"), vmath.vector4(1, 1, 1, 0))	
+		end
+		logo_timer = logo_timer - 1
+	elseif logo_timer == 0 then
+		gui.set_color(gui.get_node("logo"), vmath.vector4(1, 1, 1, 0))
+		msg.post("main:/loader#main", "start_screen_controller: init_done")
+		logo_timer = -1	
+	end	
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end

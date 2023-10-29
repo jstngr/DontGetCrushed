@@ -1,0 +1,361 @@
+animations {
+  id: "hero_item_background_idle"
+  images {
+    image: "/coin/images/coin_background/magic0001.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0002.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0006.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0007.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_item_background_spawn"
+  images {
+    image: "/coin/images/coin_background/background_spawn0001.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0002.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0006.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0007.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0008.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0009.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_item_background_disabled"
+  images {
+    image: "/coin/images/coin_background/magic_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_item_background_collect"
+  images {
+    image: "/coin/images/coin_background/collect_0001.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0002.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0006.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 18
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_item_background_idle"
+  images {
+    image: "/coin/images/sir/sir_item_background_0001.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0002.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0003.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0004.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0005.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0006.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0007.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_item_background_collect"
+  images {
+    image: "/coin/images/coin_background/collect_0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0006.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_item_background_disabled"
+  images {
+    image: "/coin/images/coin_background/magic_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_item_background_spawn"
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0009.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0010.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0011.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0012.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0013.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0014.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_item_background_idle"
+  images {
+    image: "/coin/images/coin_background/magic0001.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0002.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0006.png"
+  }
+  images {
+    image: "/coin/images/coin_background/magic0007.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_item_background_spawn"
+  images {
+    image: "/coin/images/coin_background/background_spawn0001.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0002.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0006.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0007.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0008.png"
+  }
+  images {
+    image: "/coin/images/coin_background/background_spawn0009.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_item_background_disabled"
+  images {
+    image: "/coin/images/coin_background/magic_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_item_background_collect"
+  images {
+    image: "/coin/images/coin_background/collect_0001.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0002.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0006.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 18
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_item_background_idle"
+  images {
+    image: "/coin/images/sir/sir_item_background_0001.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0002.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0003.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0004.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0005.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0006.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_0007.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_item_background_collect"
+  images {
+    image: "/coin/images/coin_background/collect_0003.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0004.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0005.png"
+  }
+  images {
+    image: "/coin/images/coin_background/collect_0006.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_item_background_disabled"
+  images {
+    image: "/coin/images/coin_background/magic_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_item_background_spawn"
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0009.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0010.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0011.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0012.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0013.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_background_spawn_0014.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

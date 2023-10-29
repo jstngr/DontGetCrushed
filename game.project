@@ -1,0 +1,40 @@
+[project]
+title = DontGetCrushed
+version = 0.1
+dependencies = https://github.com/enhance-co/defold-connector/archive/master.zip
+
+[bootstrap]
+main_collection = /main/main.collectionc
+
+[input]
+game_binding = /input/game.input_bindingc
+
+[display]
+width = 720
+height = 1280
+
+[physics]
+scale = 0.02
+
+[script]
+shared_state = 1
+
+[tracking]
+app_id = E3E15404C88C69AC
+
+[html5]
+splash_image = /splash_img.png
+
+[android]
+package = com.justiudios.dontgetcurshed
+immersive_mode = 0
+app_icon_36x36 = /icons/36_36.png
+app_icon_48x48 = /icons/48_48.png
+push_field_title = DontGetCrushed
+app_icon_72x72 = /icons/72_72.png
+app_icon_96x96 = /icons/96_96.png
+app_icon_144x144 = /icons/144_144.png
+app_icon_192x192 = /icons/192_192.png
+push_icon_small = /icons/192_192.png
+push_icon_large = /icons/192_192.png
+

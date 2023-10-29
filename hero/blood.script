@@ -1,0 +1,74 @@
+function init(self)
+	-- Add initialization code here
+	-- Remove this function if not needed
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	--explo_sprite
+    
+	if message_id == hash("Hero: start_blood") then
+		msg.post("#explo_sprite", "play_animation", {id = hash("start")})
+		x = message.pos.x
+		y = message.pos.y - 2
+		z = message.pos.z
+		
+		width = message.grid_width
+		scale = 1
+		go.set_scale(scale, "#explo_sprite") 
+
+		--y = y - (go.get("#explo_sprite","size.y") * scale / 2)
+		
+		go.set_position(vmath.vector3(x, y, z))		
+	end
+	
+	if message_id == hash("Hero: stop_blood") then
+		msg.post("#explo_sprite", "play_animation", {id = hash("stop")})		
+	end	
+	
+	--[[
+    if message_id == hash("animation_done") then
+    	print("[blood] Animation done")
+    	-- start the bleed animation
+    	msg.post("#blood_sprite", "play_animation", { id = hash("Bleed") })
+    end	
+    
+	if message_id == hash("Hero: start_blood") then
+		msg.post("#blood_sprite", "play_animation", {id = hash("Drop_in")})
+		x = message.pos.x
+		y = message.pos.y
+		z = message.pos.z
+		
+		width = message.grid_width
+		scale = width / go.get("#blood_sprite","size.x") 
+		go.set_scale(scale, "#blood_sprite") 
+
+		y = y - (go.get("#blood_sprite","size.y") * scale / 2)
+		
+		go.set_position(vmath.vector3(x, y, z))		
+	end
+	
+	if message_id == hash("Hero: stop_blood") then
+		msg.post("#blood_sprite", "play_animation", {id = hash("disabled")})		
+	end
+	]]
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

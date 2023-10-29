@@ -1,0 +1,37 @@
+animations {
+  id: "New Animation"
+  images {
+    image: "/menu_gui/images/background/background_09.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_10.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_11.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_12.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_13.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_14.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_15.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_16.png"
+  }
+  images {
+    image: "/menu_gui/images/background/background_17.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 2
+extrude_borders: 0
+inner_padding: 0

@@ -1,0 +1,472 @@
+local lift_timer = -1
+local black_out_called = false
+
+local save_file_path = ""
+local highscore = 0
+local bonuscoins = 0
+
+local hero_path = "Mainmenu_collection:/hero#hero"
+local coin_path = "Mainmenu_collection:/coin#coin"
+local coin_text_path = "Mainmenu_collection:/text"
+
+local loading_screen = ""
+
+local is_sound = false
+
+local screen_height = 1280
+
+local skin_table = {"hero", "sir", "batman", "clown"}
+local active_skin = 1
+local selected_skin = 1
+local unlocked_table = {1, 0, 0, 0}
+local cost_table = {0, 50, 50, 50}
+
+local debug = false
+
+local SYSTEM = ""
+
+-------------
+-- DEBUG
+-------------
+local cheat_amount = 0
+local cheat_time = 0
+local cheat_activated = false
+-------------
+
+function black_out(self)
+	-- msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "generation_started", {extend_time})
+	if not black_out_called then 
+		black_out_called = true
+	else
+		return
+	end
+	msg.post("Mainmenu_collection:/menu_walls/controller#menu_walls", "Black_out")	
+end
+
+function change_to_game(self)
+	msg.post("main:/loader#main", "load_"..loading_screen)	
+end
+
+function start_lift_timer(self)
+	lift_timer = 120
+end 
+
+function init(self)
+	
+	SYSTEM = sys.get_sys_info().system_name
+	if SYSTEM == "HTML5" then
+		init_html()
+	end
+	if SYSTEM == "Android" then
+		print("Android")
+	end	
+	
+	msg.post(".", "acquire_input_focus")
+	-- Add initialization code here
+	-- Remove this function if not needed
+	msg.post("Mainmenu_collection:/menu_walls/controller#menu_walls", "generate_level_fast")	
+	
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "start_init")
+	
+	--msg.post(hero_path, "Deactivate_arrows")
+	start_init_lift_delayed()
+
+	get_save_data()
+	
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Main_menu_controller: set data", {Highscore = highscore, Bonuscoins = bonuscoins})
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Main_menu_controller: system", {System = SYSTEM})
+
+	msg.post(coin_path, "Controller: path", {"Mainmenu_collection:/menu_gui/menu_gui#menu_gui"})
+	
+	get_saved_options()
+	notify_options()
+	
+	get_saved_skin_data()	
+	selected_skin = active_skin
+end
+
+function init_html()
+	cost_table = {0, 20, 20, 20}	
+end
+
+function wake_up_hero()
+	msg.post(hero_path, "set_able_to_move", {false})
+	msg.post(hero_path, "controller: path", {"Mainmenu_collection:/menu_gui/menu_gui#menu_gui"})
+	msg.post(hero_path, "Controller: change_skin", {skin_table[active_skin]})
+	msg.post(hero_path, "spawn")	
+	msg.post(hero_path, "level_init_done")	
+	msg.post(hero_path, "Main_menu: activate_arrows") -- <-- activate
+	
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- After Crushing
+	if lift_timer > 0 then
+		lift_timer = lift_timer - 1
+	else if lift_timer ~= -1 then
+		lift_timer = -1 
+		msg.post("Mainmenu_collection:/menu_walls/controller#menu_walls", "Lift")
+		msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "buttons_enabled")
+		--msg.post(game_gui_path, "reset_timer")	
+		end
+	end
+end
+
+function start_init_lift_delayed(self)
+	lift_timer = 30
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("crushed") then
+		print("[main_menu_controller] UNTEN")
+		-- Wechsel zu game, oder zu optionen + lift
+		change_to_game()
+		--msg.post("Mainmenu_collection:/menu_walls/controller#menu_walls", "Lift")
+		--start_lift_timer(self)
+		return
+	end	
+	if message_id == hash("lifted") then
+		print("[main_menu_controller] OBEN")
+		msg.post("Mainmenu_collection:/menu_walls/controller#menu_walls", "generate_level")
+		black_out_called = false
+		wake_up_hero()
+		if SYSTEM == "Android" or SYSTEM == "Windows" then
+			msg.post(coin_path, "Controller: set_skin", {skin_table[active_skin]})
+			msg.post(coin_path, "Controller: spawn", {9})	
+		end	
+		return
+	end	
+	-- Menu 
+	if message_id == hash("start_clicked") then
+		print("[main_menu_controller] MSG-RECEIWED: START")
+		msg.post(hero_path, "despawn")
+		msg.post(hero_path, "Deactivate_arrows")
+		msg.post(coin_path, "Controller: disable")
+		msg.post(coin_text_path, "disable")
+		loading_screen = "game"
+		black_out(self)
+		return
+	end	
+	if message_id == hash("options_clicked") then
+		print("[main_menu_controller] MSG-RECEIWED: OPTIONS")
+		--msg.post(hero_path, "despawn")
+		return
+	end	
+	if message_id == hash("help_clicked") then
+		print("[main_menu_controller] MSG-RECEIWED: HELP")
+		msg.post(hero_path, "despawn")
+		msg.post(hero_path, "Deactivate_arrows")
+		msg.post(coin_path, "Controller: disable")
+		msg.post(coin_text_path, "disable")
+		loading_screen = "help"
+		black_out(self)		
+		return
+	end	
+	if message_id == hash("sound_clicked") then
+		print("[main_menu_controller] MSG-RECEIWED: SOUND")
+		is_sound = not is_sound
+		save_options()
+		notify_options()	
+		return
+	end		
+	if message_id == hash("crushed_init") then
+		--able_to_move = false
+		--msg.post(hero_path, "set_able_to_move", {able_to_move})
+	end	
+	if message_id == hash("buy_clicked") then
+		print("[main_menu_controller] MSG-RECEIWED: BUY")
+		handle_buy_click()	
+	end
+	if message_id == hash("ADS_clicked") and SYSTEM == "Android" then
+		if debug then
+			msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: show_ads_text")
+			return
+		end
+		
+		local is_ready = enhance.isRewardedAdReady()
+		if not is_ready then
+			print("[controller] RewardedAd not Ready")
+			msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: show_ads_text")
+			return
+		end
+		
+		enhance.showRewardedAd(on_reward_granted, on_reward_declined, on_reward_unavailable)		
+	end	
+	if message_id == hash("CHEAT_COINS") and not cheat_activated then
+		if cheat_amount == 0 or os.clock() - cheat_time > 4 then
+			cheat_amount = 1
+			cheat_time = os.clock()
+			return	
+		end	
+		cheat_amount = cheat_amount + 1	
+		if cheat_amount == 10 then
+			print("CHEAT AKTIVATED")
+			cheat_activated = true
+			cheat_amount = 0
+			bonuscoins = bonuscoins + 100
+			save_data(highscore, bonuscoins)	
+			msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Main_menu_controller: set data", {Highscore = highscore, Bonuscoins = bonuscoins})
+		end
+	end		
+end
+
+function on_reward_unavailable()
+	print("[controller] reward_unavailable")
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: show_ads_text") 
+end
+
+function on_reward_declined()
+	print("[controller] reward declined")
+end
+
+function on_reward_granted()
+	print("[controller] reward granted")
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui","Controller: show_reward_text")
+	bonuscoins = bonuscoins + 10
+	save_data(highscore, bonuscoins)
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Main_menu_controller: set data", {Highscore = highscore, Bonuscoins = bonuscoins})
+end
+
+function notify_options()
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Main_menu_controller: options", {IS_SOUND = is_sound})
+	msg.post(hero_path, "Controller: options", {IS_SOUND = is_sound})
+end
+
+
+--------------------------------------------
+-- Input
+--------------------------------------------
+
+local swipe_beginX
+local swipe_beginY
+local swipe_endX
+local swipe_endY
+
+local swipe_startTime = 0
+
+local swipe_xDistance
+local swipe_yDistance
+
+local minSwipeDistance = 80
+local minSwipeTime = 0.6
+
+local swipe_bDoingTouch
+local swipe_totalSwipeDistanceLeft
+local swipe_totalSwipeDistanceRight
+local swipe_totalSwipeDistanceUp
+local swipe_totalSwipeDistanceDown
+
+function on_input(self, action_id, action)
+    if action_id == hash("left") and action.pressed then
+    	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "clicked", {action.x, action.y})
+		--black_out(self)
+	end   
+	
+	if action_id == hash("left") then
+		
+		if action.y > 0.4 * screen_height then
+			return
+		end
+		
+		if action.pressed then
+			swipe_bDoingTouch = true
+			swipe_beginX = action.x
+			swipe_beginY = action.y
+			swipe_startTime = os.clock()
+		elseif action.released  then
+			swipe_endX = action.x
+			swipe_endY = action.y
+			-- print(os.clock() - swipe_startTime)
+			if os.clock() - swipe_startTime < 0.6 then
+				checkSwipeDirection()
+			end
+			swipe_bDoingTouch = false
+		end
+	end	
+end
+
+function checkSwipeDirection(self)
+	if swipe_bDoingTouch == true then
+    	swipe_xDistance =  math.abs(swipe_endX - swipe_beginX) -- math.abs will return the absolute, or non-negative value, of a given value.
+    	swipe_yDistance =  math.abs(swipe_endY - swipe_beginY)
+    	if swipe_xDistance > swipe_yDistance then
+        	if swipe_beginX > swipe_endX then
+        		swipe_totalSwipeDistanceLeft = swipe_beginX - swipe_endX
+        		if swipe_totalSwipeDistanceLeft > minSwipeDistance then
+          	  	print("Swiped Left")
+                    handle_swipe("left")
+        		end
+            else
+        		swipe_totalSwipeDistanceRight = swipe_endX - swipe_beginX
+        		if swipe_totalSwipeDistanceRight > minSwipeDistance then
+          		  print("Swiped Right")
+                    handle_swipe("right")
+        		end
+            end
+		end
+	end
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end
+
+--------------------------------------------
+-- Skin changer
+--------------------------------------------
+function handle_swipe(direction)
+	local skin_amount = #skin_table
+	local new_selection = -1
+	
+	if direction == "left" then
+		new_selection = selected_skin - 1
+	else 	
+		new_selection = selected_skin + 1
+	end
+	
+	if new_selection == 0 then 
+		new_selection = skin_amount
+	else
+		if new_selection > skin_amount then
+			new_selection = 1
+		end
+	end
+	selected_skin = new_selection
+	
+	if unlocked_table[selected_skin] == 0 or not unlocked_table[selected_skin] then
+		unlocked_table[selected_skin] = 0
+		-- nicht freigeschaltet
+		msg.post(hero_path, "Controller: show_thumbnail", {skin_table[selected_skin]})	
+		msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: show_buy_msg", {cost_table[selected_skin]})	
+	else
+		-- freigeschaltet
+		active_skin = selected_skin	
+		msg.post(hero_path, "Controller: change_skin", {skin_table[active_skin]})
+		if SYSTEM == "Android" or SYSTEM == "Windows" then
+			msg.post(coin_path, "Controller: Update_skin", {skin_table[active_skin]})
+		end
+		msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: hide_buy_msg", {cost_table[selected_skin]})	
+		save_skin_data(active_skin, unlocked_table)
+	end
+
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: swiped")	
+end
+
+function handle_buy_click()
+	cost = cost_table[selected_skin]
+	if bonuscoins < cost then
+		print("[Controller] Not enough money")
+		msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: fail_buy")
+		return
+	end
+	
+	-- erfolgreicher Kauf	
+	bonuscoins = bonuscoins - cost
+	save_data(highscore, bonuscoins)
+	
+	unlocked_table[selected_skin] = 1
+	active_skin = selected_skin	
+	msg.post(hero_path, "Controller: change_skin", {skin_table[active_skin]})
+	if SYSTEM == "Android" or SYSTEM == "Windows" then
+		msg.post(coin_path, "Controller: Update_skin", {skin_table[active_skin]})
+	end
+	save_skin_data(active_skin, unlocked_table)
+	msg.post("Mainmenu_collection:/menu_gui/menu_gui#menu_gui", "Controller: buy")
+end
+
+--------------------------------------------
+-- Database (Highscore, Bonuscoins)
+--------------------------------------------
+
+function get_save_data()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "saves")
+	local save_file = sys.load(save_file_path)	
+	if not next(save_file) then
+		print("[controller] empty")
+		highscore = 0
+		bonuscoins = 0
+		sys.save(save_file_path, {highscore = 0, bonuscoins = 0})
+		return
+	end
+	if not save_file.highscore then
+		highscore = 0
+		sys.save(save_file_path, {highscore = 0, bonuscoins = bonuscoins})
+	else 
+		highscore = save_file.highscore
+	end
+	if not save_file.bonuscoins then
+		bonuscoins = 0
+		sys.save(save_file_path, {bonuscoins = 0, highscore = highscore})
+	else 
+		bonuscoins = save_file.bonuscoins
+	end	
+end
+
+function save_data(hscore, bcoins)
+	local save_file_path = sys.get_save_file("DontGetCrushed", "saves")
+	sys.save(save_file_path, {highscore = hscore, bonuscoins = bcoins})
+end
+
+--------------------------------------------
+-- Database (Options)
+--------------------------------------------
+
+function get_saved_options()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "options")
+	local save_file = sys.load(save_file_path)	
+	if not next(save_file) then
+		print("[controller] empty")
+		is_sound = true
+		sys.save(save_file_path, {IS_SOUND = is_sound})
+		return
+	end
+	if not save_file.IS_SOUND then
+		is_sound = false
+		sys.save(save_file_path, {IS_SOUND = is_sound})
+	else 
+		is_sound = save_file.IS_SOUND
+	end	
+end
+
+function save_options()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "options")
+	sys.save(save_file_path, {IS_SOUND = is_sound})
+end
+
+--------------------------------------------
+-- Database (Skins)
+--------------------------------------------
+
+function get_saved_skin_data()
+	local save_file_path = sys.get_save_file("DontGetCrushed", "unlocks")
+	local save_file = sys.load(save_file_path)	
+	if not next(save_file) then
+		print("[controller] empty")
+		sys.save(save_file_path, {Unlocked_table = unlocked_table, Active_skin = active_skin})
+		return
+	end
+	if not save_file.Unlocked_table then
+		sys.save(save_file_path, {Unlocked_table = unlocked_table, Active_skin = active_skin})
+	else 
+		unlocked_table = save_file.Unlocked_table
+	end
+	if not save_file.Active_skin then
+		sys.save(save_file_path, {Unlocked_table = unlocked_table, Active_skin = active_skin})
+	else 
+		active_skin = save_file.Active_skin
+	end	
+end
+
+function save_skin_data(a_skin, u_table)
+	local save_file_path = sys.get_save_file("DontGetCrushed", "unlocks")
+	sys.save(save_file_path, {Unlocked_table = u_table, Active_skin = a_skin})
+end
+--------------------------------------------
+-- End Database 
+--------------------------------------------

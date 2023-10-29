@@ -1,0 +1,9 @@
+images {
+  image: "/menu_gui/images/sound_active.png"
+}
+images {
+  image: "/menu_gui/images/sound_mute.png"
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

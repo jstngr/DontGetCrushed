@@ -1,0 +1,55 @@
+animations {
+  id: "New Animation"
+  images {
+    image: "/gui/images/continue/continue_background_09.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_09.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_09.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_09.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_10.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_11_ori.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_12.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_13.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_14.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_15.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_16.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_17.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_17.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_17.png"
+  }
+  images {
+    image: "/gui/images/continue/continue_background_17.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 2
+extrude_borders: 0
+inner_padding: 0

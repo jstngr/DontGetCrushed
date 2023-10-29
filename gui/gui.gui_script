@@ -1,0 +1,1002 @@
+local amount_of_x_grid = 9
+local screen_width = 720
+local screen_height = 1280
+
+local highscore_stat = 0
+local bonuscoins_stat = 0
+local show_continue = false
+
+local timer_time = 0
+local timer_frame_size_x = 0
+local timer_frame_size_y = 0
+local timer_frame_y = 0
+local timer_slider_scale_dx = 0
+local timer_slider_move_dx = 0
+local timer_slider_x_init = 0
+local timer_slider_y = 0
+
+local timer_state = 0
+
+local highscore_scale_x = 0
+local highscore_scale_y = 0
+
+local msg_timer = -1
+
+local flimmer_bug_fix_timer = 5
+
+local buttons_blink_allow = false
+local buttons_enabled = false
+
+local restart_button_size_x = 0
+local restart_button_size_y = 0
+local restart_button_min_y = 0
+local restart_button_max_y = 0
+
+local menu_button_size_x = 0
+local menu_button_size_y = 0
+local menu_button_min_y = 0
+local menu_button_max_y = 0
+
+local pause_button_size_x = 0
+local pause_button_size_y = 0 
+local pause_button_min_y = 0
+local pause_button_max_y = 0
+local pause_button_min_x = 0
+local pause_button_max_x = 0
+
+local crush_button_size_x = 0
+local crush_button_size_y = 0 
+local crush_button_min_y = 0
+local crush_button_max_y = 0
+local crush_button_min_x = 0
+local crush_button_max_x = 0
+
+local button_grid_size_x = 0
+local button_grid_size_y = 0 
+local button_grid_min_y = 0
+local button_grid_max_y = 0
+local button_grid_min_x = 0
+local button_grid_max_x = 0
+
+local is_action_buttons_enabled = false
+local is_pause_clicked = false
+local is_pause = false
+local is_resume_clicked = false
+
+local pause_text_scale = 1
+local fade_out_pause_button_text_timer = -1
+
+local fade_out_collect_text_timer = -1
+
+local skin = "hero"
+
+-- SOUND
+local timer_length_per_cent = 0
+local is_sound = true
+
+local bonus_messages = {"WOW!", "GREAT", "Not even close!", "Sweet", "...Easy...", 
+	"Looks easy", "Perfect!", "You did it!", "WOHOOO!", "Yeehaaa!", "YEAH!!"}
+	
+local fail_messages = {"OUTCH!", "NOOOooo...", "YOU FAILED", "OUTCH!", "UPS", "OUTCH!"}	
+
+local hero_path = "Gamecontroller_collection:/level/hero#hero"
+local controller_path = "Gamecontroller_collection:/controller#controller"
+
+function init(self)		
+	is_action_buttons_enabled = true
+	
+	timer_frame_y = screen_height - (screen_height * 0.19)  + (screen_height * 0.2 * 0.35)
+	timer_frame_x = screen_width/2
+	timer_frame_size_x = gui.get_size(gui.get_node("timer_frame")).x
+	timer_frame_size_y = gui.get_size(gui.get_node("timer_frame")).y	
+	gui.set_position(gui.get_node("timer_frame"), vmath.vector3(timer_frame_x, screen_height + timer_frame_size_y, 0))
+	gui.animate(gui.get_node("timer_frame"), gui.PROP_POSITION, vmath.vector3(timer_frame_x, timer_frame_y,0), gui.EASING_OUTBOUNCE, 0.8)
+
+	
+	timer_slider_y = timer_frame_y
+	timer_slider_x_init = timer_frame_x + timer_frame_size_x / 2
+	gui.set_position(gui.get_node("timer_slider"), vmath.vector3(timer_slider_x_init, timer_slider_y, 0))
+	gui.set_scale(gui.get_node("timer_slider"), vmath.vector3(0, 1, 1))
+
+	--------------------------------------------
+	-- Buttons
+	--------------------------------------------
+	local button_size = ((screen_width / amount_of_x_grid) - 10) 
+	
+	-- Button Grid
+	button_grid = gui.get_node("button_grid")
+	--button_grid = gui.get_node("button_pause")
+	button_grid_size_x = gui.get_size(button_grid).x -- * button_grid_scale
+	button_grid_size_y = gui.get_size(button_grid).y -- * button_grid_scale	
+	button_grid_y = timer_frame_y - timer_frame_size_y
+	button_grid_x = screen_width/2
+	-- button_grid_scale = button_size / gui.get_size(pause_button).x
+	-- gui.set_scale(pause_button, vmath.vector3(pause_button_scale, pause_button_scale, 1))
+	button_grid_min_y = button_grid_y - (button_grid_size_y / 2)
+	button_grid_max_y = button_grid_y + (button_grid_size_y / 2)
+	button_gridn_min_x = button_grid_x - (button_grid_size_x / 2)
+	button_grid_max_x = button_grid_x + (button_grid_size_x / 2)		
+	
+	gui.set_position(button_grid, vmath.vector3(button_grid_x, screen_height + button_grid_size_y, 0))
+	gui.animate(button_grid, gui.PROP_POSITION, vmath.vector3(button_grid_x, button_grid_y, 0), gui.EASING_OUTBOUNCE, 0.8)
+	
+	-- Pause
+	pause_button = gui.get_node("button_pause")
+	pause_button_scale = button_size / gui.get_size(pause_button).x
+	gui.set_scale(pause_button, vmath.vector3(pause_button_scale, pause_button_scale, 1))
+	--gui.animate(gui.get_node("button_pause"), gui.PROP_POSITION, vmath.vector3(pause_button_x, pause_button_y,0), gui.EASING_OUTBOUNCE, 0.8)
+
+	pause_button_size_x = gui.get_size(pause_button).x * pause_button_scale
+	pause_button_size_y = gui.get_size(pause_button).y * pause_button_scale
+	pause_button_y = 0 -- pause_button_size_y
+	pause_button_x = 0		
+	pause_button_min_y = pause_button_y - (pause_button_size_y / 2)
+	pause_button_max_y = pause_button_y + (pause_button_size_y / 2)
+	pause_button_min_x = pause_button_x - (pause_button_size_x / 2)
+	pause_button_max_x = pause_button_x + (pause_button_size_x / 2)
+	
+	gui.set_position(pause_button, vmath.vector3(pause_button_x, pause_button_y, 0))	
+	
+	-- Crush
+	crush_button = gui.get_node("button_crush")
+	crush_button_scale = button_size / gui.get_size(crush_button).x
+	gui.set_scale(crush_button, vmath.vector3(crush_button_scale, crush_button_scale, 1))
+
+	crush_button_size_x = gui.get_size(crush_button).x * crush_button_scale
+	crush_button_size_y = gui.get_size(crush_button).y * crush_button_scale
+	crush_button_y = 0 -- crush_button_size_y 
+	crush_button_x = pause_button_x + 30 + button_size  
+	crush_button_min_y = crush_button_y - (crush_button_size_y / 2)
+	crush_button_max_y = crush_button_y + (crush_button_size_y / 2)
+	crush_button_min_x = crush_button_x - (crush_button_size_x / 2)
+	crush_button_max_x = crush_button_x + (crush_button_size_x / 2)	
+	
+	gui.set_position(crush_button, vmath.vector3(crush_button_x, crush_button_y, 0))
+	
+	--------------------------------------------
+	-- End Buttons
+	--------------------------------------------
+	
+	spawn_score()
+	
+	spawn_hearts(3)
+	
+	pause_text_node = gui.get_node("pause_text")
+	gui.set_scale(pause_text_node, vmath.vector3(0, 0, 1))
+	gui.set_position(pause_text_node, vmath.vector3(screen_width / 2, screen_height * 0.6, 0))
+	
+	pause_countdown_node = gui.get_node("pause_countdown")
+	gui.set_scale(pause_countdown_node, vmath.vector3(0, 0, 1))
+	gui.set_position(pause_countdown_node, vmath.vector3(screen_width / 2, screen_height * 0.6, 0))
+	
+	
+	-- Game Over screen
+	gui.set_color(gui.get_node("Game_over_text"), vmath.vector4(1, 1, 1, 0))
+	gui.set_position(gui.get_node("Game_over_text"), vmath.vector3(screen_width / 2, screen_height * 0.7, 0))
+	
+	highscore_node = gui.get_node("highscore")
+	gui.set_color(highscore_node, vmath.vector4(1, 1, 1, 0))
+	gui.set_position(highscore_node, vmath.vector3(screen_width / 2, screen_height *0.2, 0))	
+	highscore_scale_x = 0.5
+	highscore_scale_y = 0.5
+	gui.set_scale(highscore_node, vmath.vector3(0.5, 0.5, 1))
+		
+	score_text_node = gui.get_node("score_text")
+	gui.set_color(score_text_node, vmath.vector4(1, 1, 1, 0))
+	gui.set_position(score_text_node, vmath.vector3(screen_width / 2, screen_height *0.2, 0))	
+	gui.set_scale(score_text_node, vmath.vector3(0.3, 0.3, 1))
+	
+	gui.set_color(gui.get_node("button_restart"), vmath.vector4(1, 1, 1, 0))	
+	gui.set_color(gui.get_node("button_menu"), vmath.vector4(1, 1, 1, 0))	
+	
+	gui.set_color(gui.get_node("bonuscoins_text"), vmath.vector4(1, 1, 1, 0))	
+	gui.set_color(gui.get_node("highscore_text"), vmath.vector4(1, 1, 1, 0))	
+	gui.set_color(gui.get_node("restart_text"), vmath.vector4(1, 1, 1, 0))
+	gui.set_color(gui.get_node("restart_icon"), vmath.vector4(1, 1, 1, 0))
+	gui.set_color(gui.get_node("menu_text"), vmath.vector4(1, 1, 1, 0))
+	gui.set_color(gui.get_node("menu_icon"), vmath.vector4(1, 1, 1, 0))	
+	gui.set_color(gui.get_node("hero_sad"), vmath.vector4(1, 1, 1, 0))
+
+	gui.set_color(gui.get_node("overlay_bg"), vmath.vector4(1, 1, 1, 0))
+	gui.set_position(gui.get_node("overlay_bg"), vmath.vector3(screen_width / 2, screen_height*0.2, 0))
+	gui.set_scale(gui.get_node("overlay_bg"), vmath.vector3((screen_width * 2) / gui.get_size(gui.get_node("overlay_bg")).x, screen_height/gui.get_size(gui.get_node("overlay_bg")).y,1))
+	--print("[gui] "..(screen_height/2)/gui.get_size(gui.get_node("overlay_bg")).y)
+end
+
+-- init location and start move in animation
+function spawn_hearts(amount)
+	amount = amount -1
+	if amount > 2 then 
+		amount = 2
+	end
+	heart_min_x = timer_frame_x + (timer_frame_size_x / 2) - (gui.get_size(gui.get_node("Heart1")).x / 2) 
+	heart_y = timer_frame_y + (timer_frame_size_y / 2) + (gui.get_size(gui.get_node("Heart1")).y / 2) + 20
+	heart_init_y = init_y	
+	for i=0,amount,1 do
+		gui.set_position(gui.get_node("Heart"..i+1), vmath.vector3(heart_min_x - i*10 - (i * gui.get_size(gui.get_node("Heart1")).x), heart_init_y, 0))		
+		gui.animate(gui.get_node("Heart"..i+1), gui.PROP_POSITION, vmath.vector3(heart_min_x - i*10 - (i * gui.get_size(gui.get_node("Heart1")).x), heart_y, 0), gui.EASING_OUTBOUNCE, 1, 0.25 + 0.3 * (i+1))
+		gui.play_flipbook(gui.get_node("Heart"..i+1), "start")
+	end
+end
+
+function spawn_score()
+	score_node = gui.get_node("Score")
+	gui.set_color(score_node, vmath.vector4(1, 1, 1, 1))
+	score_x = timer_frame_x - (timer_frame_size_x / 2) --+ (gui.get_size(gui.get_node("Score")).x / 2)
+	score_y = timer_frame_y + (timer_frame_size_y / 2) + (gui.get_size(score_node).y / 2) + 20	
+	init_y = screen_height + timer_frame_size_y + (score_y - timer_frame_y)
+	gui.set_position(score_node, vmath.vector3(score_x, init_y, 0))
+	gui.animate(score_node, gui.PROP_POSITION, vmath.vector3(score_x, score_y,0), gui.EASING_OUTBOUNCE, 1, 0.25)
+	
+	rearrange_coin_score("0")
+end
+
+function rearrange_coin_score(score)
+	score_size = gui.get_size(gui.get_node("Score"))
+	score_size_x = gui.get_text_metrics("SovjetBox", score)["width"]
+	score_size_y = gui.get_text_metrics("SovjetBox", score)["height"] --gui.get_text_metrics_from_node(gui.get_node("Score")).height
+	b_node = gui.get_node("bonuscoins_hud_text")
+	b_x = score_size_x + 10
+	b_y = -score_size_y * 0.5
+	gui.set_position(b_node, vmath.vector3(b_x, b_y, 0))
+end
+
+--------------------------------------------
+-- Timer
+--------------------------------------------
+
+function start_move_timer_slider(self, time)
+	timer_time = time
+	timer_state = 1
+	
+	-- sound
+	timer_length_per_cent = time/100
+	
+	timer_slider_scale_dx = 1 / time
+	timer_slider_move_dx = (timer_slider_x_init - gui.get_position(gui.get_node("timer_frame")).x) / time
+end
+
+function start_remove_timer_slider(self, time)
+	timer_state = 2
+	timer_time = time
+	timer_slider_scale_dx = -1 / time
+	timer_slider_move_dx = -1 * (timer_slider_x_init - gui.get_position(gui.get_node("timer_frame")).x) / time
+end
+
+function move_timer_slider(self)
+	new_x = gui.get_position(gui.get_node("timer_slider")).x - timer_slider_move_dx
+	if new_x > timer_slider_x_init then
+		set_timer_slider_to_zero()
+		return
+	end
+
+	gui.set_position(gui.get_node("timer_slider"), vmath.vector3(new_x, timer_slider_y, 0))
+	gui.set_scale(gui.get_node("timer_slider"), vmath.vector3(gui.get_scale(gui.get_node("timer_slider")).x + timer_slider_scale_dx, 1, 1))
+end
+
+function reset_timer_slider(self)
+	start_remove_timer_slider(self, 20)
+end
+
+function set_timer_slider_to_zero(self)
+	gui.set_position(gui.get_node("timer_slider"), vmath.vector3(timer_slider_x_init, timer_slider_y, 0))
+	gui.set_scale(gui.get_node("timer_slider"), vmath.vector3(0, 1, 1))
+end
+
+--------------------------------------------
+-- End Timer
+--------------------------------------------
+
+function set_score(self, score)
+	gui.set_text(gui.get_node("Score"), score)
+	
+	rearrange_coin_score(score)
+end	
+
+function set_bonuscoins(coins)
+	gui.set_text(gui.get_node("bonuscoins_hud_text"), "Coins: "..coins)
+end
+
+function post_bonus_message(self)
+	math.randomseed(os.time())
+	math.random(); math.random(); math.random()
+	rand = math.random(1, 3)
+	if rand ~= 1 then
+		return
+	end
+	
+	random_msg = math.random(1, 11)
+	bonus_msg = bonus_messages[random_msg]
+	
+	random_x = math.random(screen_width*0.3, screen_width*0.7)
+	math.random(); math.random(); math.random()
+	random_y = math.random(screen_height*0.4, screen_height*0.7)
+	math.random(); math.random(); math.random()
+	random_rotation = math.random(0, 45) *  math.pow(-1,math.random(1,2))
+	node = gui.get_node("Bonus_text")
+	gui.set_position(node, vmath.vector3(random_x, random_y, 0))
+	gui.set_rotation(node, vmath.vector3(0, 0, random_rotation))
+	
+	gui.set_text(node, bonus_msg)
+	msg_timer = 160	
+	x = gui.get_position(node).x
+	y = gui.get_position(node).y + 10
+
+end
+	
+function post_fail_message()
+	math.randomseed(os.time())
+	math.random(); math.random(); math.random()
+
+	random_msg = math.random(1, 6)
+
+	fail_msg = fail_messages[random_msg]
+
+	node = gui.get_node("Fail_text")
+	gui.set_position(node, vmath.vector3(screen_width / 2, screen_height / 2 + 50, 0))
+	gui.set_color(node, vmath.vector4(1, 1, 1, 1))
+	gui.set_text(node, fail_msg)
+	gui.set_scale(node, vmath.vector3(0.7, 0.7, 1))
+end
+
+	
+
+function final(self)
+end
+
+local timer_tick_table = {
+	[310]=true,
+	[280]=true,
+	[250]=true,
+	[220]=true,
+	[190]=true,
+	[160]=true,
+	[130]=true,	
+	[100]=true,	
+	[80]=true,	
+	[60]=true,	
+	[50]=true,	
+	[40]=true,
+	[30]=true,	
+	[25]=true,	
+	[20]=true,
+	[15]=true,
+	[10]=true,
+	[5]=true,
+	[3]=true,
+	[1]=true,
+}
+
+function update(self, dt)
+	
+	if fade_out_collect_text_timer >= 0 then
+		fade_out_collect_text_timer = fade_out_collect_text_timer - 1
+		node = gui.get_node("collect_text")
+		color = gui.get_color(node)
+		alpha = color["w"] - (1/50)
+		if alpha < 0 then
+			alpha = 0
+		end
+		gui.set_color(node, vmath.vector4(color["x"], color["y"], color["z"], alpha))
+		position = gui.get_position(node)
+		gui.set_position(node, vmath.vector3(position.x, position.y + 0.2, position.z))
+	end	
+	
+	if fade_out_pause_button_text_timer >= 0 then
+		fade_out_pause_button_text_timer = fade_out_pause_button_text_timer - 1
+		node = gui.get_node("button_pause_text")
+		color = gui.get_color(node)
+		alpha = color["w"] - (1/60)
+		if alpha < 0 then
+			alpha = 0
+		end
+		gui.set_color(node, vmath.vector4(color["x"], color["y"], color["z"], alpha))
+		position = gui.get_position(node)
+		gui.set_position(node, vmath.vector3(position.x, position.y + 0.2, position.z))
+	end
+	
+	if is_pause then
+		return
+	end
+	
+	if flimmer_bug_fix_timer > 0 then
+		flimmer_bug_fix_timer = flimmer_bug_fix_timer - 1
+	elseif flimmer_bug_fix_timer == 0 then
+		flimmer_bug_fix_timer = -1	
+		gui.set_enabled(gui.get_node("Start_Flimmer_bug_fix"), false)
+	end
+	
+	if timer_time > 0 then
+		move_timer_slider(self)		
+		if timer_tick_table[timer_time] and timer_state == 1 then
+			play_timer_sound()
+		end		
+		
+		timer_time = timer_time - 1
+	end
+
+	if msg_timer > 0 then
+		msg_timer = msg_timer - 1
+	elseif msg_timer == 0 then
+		gui.set_text(gui.get_node("Bonus_text"),"")
+		msg_timer = -1
+	end
+	
+	--[[
+	v1 = vmath.vector3(0, button_grid_y, 0)
+	v2 = vmath.vector3(screen_width, button_grid_y, 0)
+	msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})	
+	v1 = vmath.vector3(0, button_grid_y + button_grid_size_y/2, 0)
+	v2 = vmath.vector3(screen_width, button_grid_y - button_grid_size_y/2, 0)
+	msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})		
+	
+	for i = 1,9,1 do
+		v1 = vmath.vector3(i * (gui.get_width()/amount_of_x_grid), 0, 0)
+		v2 = vmath.vector3(i * (gui.get_width()/amount_of_x_grid), screen_height, 0)
+		msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})		
+	end
+	]]
+	
+	--[[
+------DEBUG----------------------------------------------------------------------------------------------------------------------------------
+	v1 = vmath.vector3((screen_width/2) - restart_button_size_x/2, restart_button_min_y, 1) 
+	v2 = vmath.vector3((screen_width/2) + restart_button_size_x/2, restart_button_min_y, 1) 
+	msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})	
+	v1 = vmath.vector3((screen_width/2) - restart_button_size_x/2, restart_button_max_y, 1) 
+	v2 = vmath.vector3((screen_width/2) + restart_button_size_x/2, restart_button_max_y, 1) 
+	msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})	
+	v1 = vmath.vector3((screen_width/2) - menu_button_size_x/2, menu_button_min_y, 1) 
+	v2 = vmath.vector3((screen_width/2) + menu_button_size_x/2, menu_button_min_y, 1) 
+	msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})	
+	v1 = vmath.vector3((screen_width/2) - menu_button_size_x/2, menu_button_max_y, 1) 
+	v2 = vmath.vector3((screen_width/2) + menu_button_size_x/2, menu_button_max_y, 1) 
+	msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})		
+----------------------------------------------------------------------------------------------------------------------------------------	
+	]]
+	
+	-- pprint("[gui] "..gui.get_position(gui.get_node("button_crush")))
+	-- print("[gui] "..button_grid_x + crush_button_x)
+	-- print("[gui] "..button_grid_x)
+	-- print("[gui] "..crush_button_x)
+	
+	-- v1 = vmath.vector3(crush_button_x  + button_grid_x, crush_button_size_y * 0.5 + button_grid_y, 0)
+	-- v2 = vmath.vector3(crush_button_x  + button_grid_x, crush_button_size_y * -0.5 + button_grid_y, 0)
+	-- msg.post("@render:", "draw_line", {start_point = v1, end_point = v2, color = vmath.vector4(238, 58, 140, 1)})	
+end
+
+function is_restart_button(x, y)
+	return gui.pick_node(gui.get_node("restart_icon"), x, y) or gui.pick_node(gui.get_node("restart_text"), x, y)
+end
+
+function is_menu_button(x, y)
+	return gui.pick_node(gui.get_node("menu_icon"), x, y) or gui.pick_node(gui.get_node("menu_text"), x, y)
+end
+
+function is_pause_button(x, y)
+	return gui.pick_node(gui.get_node("button_pause"), x, y)
+end
+
+function is_crush_button(x, y)
+	return gui.pick_node(gui.get_node("button_crush"), x, y)
+end
+
+function is_continue_button(x, y)
+	return gui.pick_node(gui.get_node("continue_grid"), x, y)
+end
+
+
+function post_restart_to_controller()
+	print("[gui] post restart to controller")
+	msg.post(controller_path, "Gui: restart")
+end
+
+function start_pause_text()
+	pause_text_node = gui.get_node("pause_text")
+	gui.animate(pause_text_node, gui.PROP_SCALE, vmath.vector3(1, 1, 1), gui.EASING_OUTBOUNCE, 0.3, 0, blink_pause_text)
+end
+
+function blink_pause_text()
+	if not is_pause then
+		return
+	end
+	gui.animate(gui.get_node("pause_text"), gui.PROP_SCALE, vmath.vector3(pause_text_scale + 0.1, pause_text_scale + 0.1, 1), gui.EASING_OUTBOUNCE, 0.3, 0.5, blink_back_pause_text)
+end
+
+function blink_back_pause_text()
+	gui.animate(gui.get_node("pause_text"), gui.PROP_SCALE, vmath.vector3(pause_text_scale, pause_text_scale, 1), gui.EASING_OUTBOUNCE, 0.3, 0, blink_pause_text)
+end
+
+function start_countdown(n)
+	gui.animate(gui.get_node("pause_text"), gui.PROP_SCALE, vmath.vector3(0, 0, 1), gui.EASING_INBOUNCE, 0.3, 0, function()
+		blink_in_counter(n)
+	end)
+end
+
+function blink_in_counter(n)
+	node = gui.get_node("pause_countdown")
+	if n < 0 then
+		gui.set_scale(node, vmath.vector3(0, 0, 1))
+		msg.post("#", "Gui: pause counter done")
+		return
+	end
+	if n == 0 then
+		txt = "GO!"
+	else 
+		txt = ""..n
+	end
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_text(node, txt)
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(1, 1, 1), gui.EASING_OUTBOUNCE, 0.5, 0.5, function()
+		blink_in_counter(n-1)
+	end)
+end
+
+function show_collect_text(position, y)	
+	local node = gui.get_node("collect_text")
+	local color = gui.get_color(node)
+	local x = (screen_width / amount_of_x_grid) * 0.5 + (position - 1) * (screen_width / amount_of_x_grid)
+	local y = y + 0.2 * screen_height
+	gui.set_position(node, vmath.vector3(x, y, 0))
+	gui_pos = gui.get_screen_position(node)
+	if gui_pos.x ~= x then
+		x = x  - (gui_pos.x - x)
+		gui.set_position(node, vmath.vector3(x, y, 0))
+	end
+	
+	local screen_pos_x = gui.get_screen_position(node).x
+	
+	local overflow_left = screen_pos_x - (gui.get_text_metrics_from_node(node)["width"] * 0.3 * 0.5)
+	if overflow_left < 0 then
+		print("[gui] left")
+		x = x - overflow_left
+		gui.set_position(node, vmath.vector3(x, screen_height * 0.5, 0))
+	end
+	
+	local overflow_right = screen_width - (screen_pos_x + (gui.get_text_metrics_from_node(node)["width"] * 0.3 * 0.5))
+	if overflow_right < 0 then
+		x = x + overflow_right
+		gui.set_position(node, vmath.vector3(x, screen_height * 0.5, 0))
+	end	  
+	
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_color(node, vmath.vector4(color.x, color.y, color.z, 1))
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.3, 0.3, 1), gui.EASING_OUTBOUNCE, 0.5, 0, fade_out_collect_text)
+end
+
+function fade_out_collect_text()
+	node = gui.get_node("collect_text")
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.3, 0.3, 1), gui.EASING_OUTBOUNCE, 0.5, 0, function() fade_out_collect_text_timer = 50	
+	end)
+end
+
+	
+function show_pause_button_text()
+	node = gui.get_node("button_pause_text")
+	color = gui.get_color(node)
+	gui.set_position(node, vmath.vector3(0, -(screen_height * 0.4), 0))
+	gui.set_scale(node, vmath.vector3(0, 0, 1))
+	gui.set_color(node, vmath.vector4(color.x, color.y, color.z, 1))
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.4, 0.4, 1), gui.EASING_OUTBOUNCE, 0.5, 0.2, fade_out_pause_button_text)
+end
+
+function fade_out_pause_button_text()
+	node = gui.get_node("button_pause_text")
+	gui.animate(node, gui.PROP_SCALE, vmath.vector3(0.4, 0.4, 1), gui.EASING_OUTBOUNCE, 0.6, 0, function() fade_out_pause_button_text_timer = 60	
+	end)
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("start_timer") then
+    	start_move_timer_slider(self, message[1])
+    end
+    
+    if message_id == hash("reset_timer") then
+    	reset_timer_slider(self)
+    end   
+    
+    if message_id == hash("set_score") then
+    	set_score(self, message[1])
+    end
+    
+    if message_id == hash("set_bonuscoins") then
+    	set_bonuscoins(message[1])
+    end
+    
+    if message_id == hash("collected") then
+    	show_collect_text(message.position, message.y)
+    end
+    
+    if message_id == hash("post_bonus_message") then
+    	post_bonus_message()
+    end
+    if message_id == hash("Controller: disable_heart") then
+    	disable_heart(message[1])
+    end   
+    if message_id == hash("Controller: post_fail_message") then
+    	post_fail_message(message[1])
+    end    
+    if message_id == hash("Controller: delete_fail_message") then
+    	gui.animate(gui.get_node("Fail_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 1)
+		--gui.set_text(gui.get_node("Fail_text"),"")
+    end       
+    if message_id == hash("Controller: start_game_over_screen") then
+    	start_game_over_screen(message.Highscore, message.Score, message.Bonuscoins, message.Is_first_try)
+    	-- DUMMI: 
+    	--start_game_over_screen(10, 30)
+    end         
+    if message_id == hash("Controller: start pause") then
+    	is_pause = true
+		start_pause_text()	
+	end  
+	
+	if message_id == hash("Controller: reset_pause") then
+		is_pause = false
+		is_pause_clicked = false
+	end
+	
+    if message_id == hash("Controller: resume pause") then	
+		timer_time = 0	
+		gui.set_position(gui.get_node("timer_slider"), vmath.vector3(timer_slider_x_init, timer_slider_y, 0))
+		gui.set_scale(gui.get_node("timer_slider"), vmath.vector3(0, 1, 1))
+		start_countdown(3)		
+	end  	
+	if message_id == hash("Gui: pause counter done") then
+		msg.post(controller_path, "Gui: resume")	
+		is_pause = false
+		is_pause_clicked = false
+		is_resume_clicked = false
+	end	
+	
+	if message_id == hash("Controller: insta_crush") then
+		timer_time = 10
+	end
+	
+	if message_id == hash("Controller: clicked") then		
+		x = message[1]
+		y = message[2]	
+		
+		-- print("[gui] clicked ("..x.."|"..y..")")
+		
+		if buttons_enabled and is_restart_button(x, y) then
+			print("[gui] CLICKED ONTO RESTART")			
+			buttons_enabled = false			
+			restore_initial_state()
+			-- tell controller:
+			post_restart_to_controller()	
+			play_click_sound()
+			return
+		end
+		if buttons_enabled and is_menu_button(x, y) then
+			print("[gui] CLICKED ONTO MENU")
+			buttons_enabled = false
+			fade_out_game_over(false)
+			gui.animate(gui.get_node("timer_frame"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+			gui.animate(gui.get_node("timer_slider"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+			msg.post(controller_path, "Gui: back to main menu")
+			play_click_sound()
+			return
+		end	
+		if is_pause_button(x, y) and not is_pause_clicked and is_action_buttons_enabled then
+			is_pause_clicked = true
+			play_click_sound()
+			msg.post(controller_path, "Gui: pause_clicked")
+			show_pause_button_text()
+		end	
+		if is_pause and is_pause_clicked and not is_resume_clicked then
+			is_resume_clicked = true
+			msg.post(controller_path, "Gui: resume_clicked")
+			play_click_sound()
+		end
+		if is_crush_button(x, y) and not is_pause and is_action_buttons_enabled then
+			play_click_sound()
+			print("[gui] CLICKED ONTO CRUSH")
+			msg.post(controller_path, "Gui: crush_clicked")
+		end
+		if is_continue_button(x, y) and show_continue and buttons_enabled then
+			print("[gui] CLICKED ONTO continue")			
+			buttons_enabled = false			
+			play_click_sound()	
+			show_continue = false	
+			fade_out_game_over(true)				
+			msg.post(controller_path, "Gui: continue_clicked")		
+			restore_continue_state()	
+			return
+		end
+	end    
+	if message_id == hash("Controller: options") then
+		is_sound = message.IS_SOUND
+		return
+	end
+	if message_id == hash("Controller: Skin") then
+		skin = message[1]
+		gui.play_flipbook(gui.get_node("hero_sad"), skin.."_sad")
+	end
+end
+
+function disable_heart(number)
+	print ("[gui] disable heart "..number)
+	print("[gui] old texture: "..gui.get_texture(gui.get_node("Heart"..number)))
+	gui.play_flipbook(gui.get_node("Heart"..number), "delete")
+end
+
+function on_input(self, action_id, action)
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+local temp_highscore = 0
+local temp_score = 0
+local time_step_animation = 0
+
+
+
+function blink_highscore() 
+	if temp_score <= temp_highscore then
+		-- Just to delay
+		gui.animate(gui.get_node("highscore"), gui.PROP_SCALE, vmath.vector3(highscore_scale_x, highscore_scale_y, 1), gui.EASING_LINEAR, 1.5, 0, finish_game_over_screen)
+		return
+	end	
+	gui.animate(gui.get_node("highscore"), gui.PROP_SCALE, vmath.vector3(highscore_scale_x + 0.1, highscore_scale_y + 0.1, 1), gui.EASING_LINEAR, time_step_animation, 0, blink_back_highscore)
+end
+
+function blink_back_highscore()
+	temp_highscore = temp_highscore + 1
+	gui.set_text(gui.get_node("highscore"), "Highscore: "..temp_highscore)
+	gui.animate(gui.get_node("highscore"), gui.PROP_SCALE, vmath.vector3(highscore_scale_x, highscore_scale_y, 1), gui.EASING_LINEAR, time_step_animation, 0, blink_highscore)
+end
+
+function start_game_over_screen(highscore, score, bonuscoins, is_first_try)
+	show_continue = is_first_try
+	is_action_buttons_enabled = false
+	
+	if highscore < score then
+		highscore_stat = score
+	else
+		highscore_stat = highscore
+	end
+	bonuscoins_stat = bonuscoins
+	
+	temp_highscore = highscore
+	temp_score = score
+	
+	-- Game-Over-Text
+	gui.animate(gui.get_node("Game_over_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5)
+	
+	gui.animate(gui.get_node("highscore"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	gui.set_text(gui.get_node("highscore"), "Highscore: "..highscore)
+	
+	x = (screen_width / 2) - (gui.get_text_metrics_from_node(gui.get_node("Score")).width / 2)
+	score_height = gui.get_text_metrics_from_node(gui.get_node("Score")).height
+	gui.animate(gui.get_node("Score"), gui.PROP_POSITION, vmath.vector3(x, screen_height * 0.45, 0), gui.EASING_OUTBOUNCE, 1,1, blink_highscore)
+	--pprint(gui.get_text_metrics_from_node(gui.get_node("Score")))
+	
+	gui.set_position(gui.get_node("score_text"), vmath.vector3(screen_width / 2 , (screen_height * 0.45) + score_height/2, 0))
+	gui.animate(gui.get_node("score_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 1, 1)
+	
+	time_step_animation = math.max((2 / (temp_score - temp_highscore) / 2), 0.05)
+end
+
+local button_distance = 40
+
+function finish_game_over_screen()
+	gui.animate(gui.get_node("highscore"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+	gui.animate(gui.get_node("score_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+	gui.animate(gui.get_node("Score"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+	gui.animate(gui.get_node("button_pause"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+	gui.animate(gui.get_node("button_crush"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+	
+	gui.animate(gui.get_node("overlay_bg"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0)	
+	
+	if show_continue and bonuscoins_stat >= 20 then
+		start_continue_button()
+	end
+	
+	-- Hero sad
+	local node = gui.get_node("hero_sad")
+	local hero_size = gui.get_size(node)
+	local hero_scale = ((screen_width / amount_of_x_grid) * 2) / hero_size.x
+	local hero_pos_x = (hero_size.x * hero_scale) * 0.5	
+	local hero_pos_y = 0.2 * screen_height + hero_size.y * hero_scale * 0.5 
+	gui.set_position(node, vmath.vector3(hero_pos_x, hero_pos_y, 1))
+	gui.set_scale(node, vmath.vector3(hero_scale, hero_scale, 1))
+	
+	-- game_over_buttons_grid
+	local node = gui.get_node("game_over_buttons_grid")
+	local grid_x = hero_pos_x + hero_size.x * hero_scale * 0.5 + 20
+	local grid_y = hero_pos_y
+	local grid_size = gui.get_size(node)
+	gui.set_position(node, vmath.vector3(grid_x, grid_y, 1))
+	print("[gui] grid_x: "..grid_x)
+	print("[gui] grid_y: "..grid_y)
+
+	-- Restart button - Icon and text
+	local grid_r = gui.get_node("restart_grid")
+	local grid_r_x = 0
+	local grid_r_y = 0
+	local grid_r_size = gui.get_size(grid_r)
+	gui.set_position(grid_r, vmath.vector3(grid_r_x, grid_r_y, 0))
+	
+	local icon_r = gui.get_node("restart_icon")
+	local icon_r_x = 0
+	local icon_r_y = 0-- grid_r_size.y * 0.5
+	local icon_r_size = gui.get_size(icon_r)
+	local icon_r_scale = (screen_width / amount_of_x_grid) / icon_r_size.x
+	gui.set_position(icon_r, vmath.vector3(icon_r_x, icon_r_y, 0))
+	gui.set_scale(icon_r, vmath.vector3(icon_r_scale, icon_r_scale, 1))
+	
+	local text_r = gui.get_node("restart_text")
+	local text_r_x = icon_r_x + icon_r_size.x * icon_r_scale + 10
+	local text_r_y = icon_r_y + 10
+	local text_r_size = gui.get_size(text_r)
+	local text_r_scale = (screen_width / amount_of_x_grid) / text_r_size.y
+	gui.set_position(text_r, vmath.vector3(text_r_x, text_r_y, 0))
+	gui.set_scale(text_r, vmath.vector3(text_r_scale, text_r_scale, 1))	
+
+	-- Menu button - Icon and text
+	local grid_m = gui.get_node("menu_grid")
+	local grid_m_x = 0
+	local grid_m_y = grid_r_y + icon_r_size.y
+	local grid_m_size = gui.get_size(grid_m)
+	gui.set_position(grid_m, vmath.vector3(grid_m_x, grid_m_y, 0))
+	
+	local icon_m = gui.get_node("menu_icon")
+	local icon_m_x = 0
+	local icon_m_y = 0-- grid_r_size.y * 0.5
+	local icon_m_size = gui.get_size(icon_m)
+	local icon_m_scale = (screen_width / amount_of_x_grid) / icon_m_size.x
+	gui.set_position(icon_m, vmath.vector3(icon_m_x, icon_m_y, 0))
+	gui.set_scale(icon_m, vmath.vector3(icon_m_scale, icon_m_scale, 1))
+	
+	local text_m = gui.get_node("menu_text")
+	local text_m_x = icon_m_x + icon_m_size.x * icon_m_scale + 10
+	local text_m_y = icon_m_y + 10
+	local text_m_size = gui.get_size(text_m)
+	local text_m_scale = (screen_width / amount_of_x_grid) / text_m_size.y
+	gui.set_position(text_m, vmath.vector3(text_m_x, text_m_y, 0))
+	gui.set_scale(text_m, vmath.vector3(text_m_scale, text_m_scale, 1))			
+		
+	-- Stats
+	local grid_s = gui.get_node("stats_grid")
+	local grid_s_x = 0
+	local grid_s_y = grid_r_y - icon_r_size.y
+	gui.set_position(grid_s, vmath.vector3(grid_s_x, grid_s_y, 0))
+	
+	local text_sh = gui.get_node("highscore_text")
+	local text_sh_x = 0
+	local text_sh_y = 10
+	local text_sh_size = gui.get_size(text_sh)
+	local text_sh_scale = ((screen_width / amount_of_x_grid) * 0.5) / text_sh_size.y
+	gui.set_text(text_sh, "Highscore:  "..highscore_stat)
+	gui.set_position(text_sh, vmath.vector3(text_sh_x, text_sh_y, 0))
+	gui.set_scale(text_sh, vmath.vector3(text_sh_scale, text_sh_scale, 1))	
+			
+	local text_sb = gui.get_node("bonuscoins_text")
+	local text_sb_x = 0
+	local text_sb_y = text_sh_y - text_sh_size.y * text_sh_scale - 15
+	local text_sb_size = gui.get_size(text_sb)
+	local text_sb_scale = ((screen_width / amount_of_x_grid) * 0.5) / text_sb_size.y
+	gui.set_text(text_sb, "Bonuscoins: "..bonuscoins_stat)
+	gui.set_position(text_sb, vmath.vector3(text_sb_x, text_sb_y, 0))
+	gui.set_scale(text_sb, vmath.vector3(text_sb_scale, text_sb_scale, 1))			
+	
+	-- Animation
+	buttons_blink_allow  = true
+	buttons_enabled = true
+	
+	gui.animate(gui.get_node("hero_sad"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	-- gui.animate(gui.get_node("restart_icon"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	gui.animate(gui.get_node("restart_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	gui.animate(gui.get_node("menu_icon"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	gui.animate(gui.get_node("menu_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	gui.animate(gui.get_node("highscore_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)
+	gui.animate(gui.get_node("bonuscoins_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5)	
+	
+	gui.animate(gui.get_node("restart_icon"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.5, function()
+	blink_button("menu_grid", gui.get_scale(grid_m).x, "restart_grid", gui.get_scale(grid_r).x)
+		end)
+end
+
+function blink_button(name, name_scale, follower, follower_scale) 
+	if not buttons_blink_allow then
+		return
+	end
+
+	gui.animate(gui.get_node(name), gui.PROP_SCALE, vmath.vector3(name_scale + 0.1, name_scale + 0.1, 1), gui.EASING_OUTBOUNCE, 0.3, 0.5, function()
+	blink_back_button(name, name_scale, follower, follower_scale)
+	end)
+end
+
+function blink_back_button(name, name_scale, follower, follower_scale)
+	temp_highscore = temp_highscore + 1
+	gui.animate(gui.get_node(name), gui.PROP_SCALE, vmath.vector3(name_scale, name_scale, 1), gui.EASING_OUTBOUNCE, 0.3, 0, function()
+	blink_button(follower, follower_scale, name, name_scale)
+	end)
+end
+
+function fade_out_game_over(is_restart)
+	gui.animate(gui.get_node("hero_sad"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("restart_icon"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("restart_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("menu_icon"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("menu_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("highscore_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("bonuscoins_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)
+	gui.animate(gui.get_node("continue_grid"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.25, 0.2)	
+	
+	if is_restart then
+		gui.animate(gui.get_node("overlay_bg"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+		show_continue = false	
+	end
+	gui.animate(gui.get_node("Game_over_text"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 0), gui.EASING_LINEAR, 0.5)
+end
+
+function restore_initial_state()
+	is_action_buttons_enabled = true
+	buttons_blink_allow = false
+	gui.animate(gui.get_node("button_pause"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.25)
+	gui.animate(gui.get_node("button_crush"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.25)	
+	fade_out_game_over(true)
+	spawn_hearts(3)
+	spawn_score()	
+end
+
+--------------------------------------------
+-- continue
+--------------------------------------------
+function restore_continue_state()
+	is_action_buttons_enabled = true
+	buttons_blink_allow = false
+	gui.animate(gui.get_node("button_pause"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.25)
+	gui.animate(gui.get_node("button_crush"), gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0.25)	
+	spawn_hearts(1)
+	spawn_score()			
+end
+
+function start_continue_button()
+	local grid = gui.get_node("continue_grid")
+	local grid_y = 0.68 * screen_height
+	local grid_x = 0.5 * screen_width
+	local grid_size = gui.get_size(grid)
+	local grid_scale = screen_width * 0.6 / grid_size.x
+	gui.set_position(grid, vmath.vector3(grid_x, grid_y, 1))
+	gui.set_scale(grid, vmath.vector3(grid_scale, grid_scale, 1))
+	gui.set_color(grid, vmath.vector4(1, 1, 1, 0))	
+	gui.animate(grid, gui.PROP_COLOR, vmath.vector4(1, 1, 1, 1), gui.EASING_LINEAR, 0.5, 0,5)
+	
+	local text_c = gui.get_node("continue_text") 
+	local text_c_x = 0
+	local text_c_y = (grid_size.y * grid_scale * 0.7) - (grid_size.y * grid_scale * 0.5)
+	-- local text_c_size = gui.get_size(text_c)
+	local text_c_scale = 0.55 -- grid_size.x / text_c_size.x  --((grid_size.x * grid_scale) / text_c_size.x) --* grid_scale
+	gui.set_position(text_c, vmath.vector3(text_c_x, text_c_y, 0))	
+	gui.set_scale(text_c, vmath.vector3(text_c_scale, text_c_scale, 1))
+	
+	local text_cc = gui.get_node("continue_text_cost") 
+	local text_cc_x = 0
+	local text_cc_y = (grid_size.y * grid_scale * 0.35) - (grid_size.y * grid_scale * 0.5)
+	local text_cc_scale = 0.25
+	gui.set_position(text_cc, vmath.vector3(text_cc_x, text_cc_y, 0))	
+	gui.set_scale(text_cc, vmath.vector3(text_cc_scale, text_cc_scale, 1))	
+
+	local img_c = gui.get_node("continue_img") 
+	local img_c_x = 0
+	local img_c_y = 0 --(grid_size.y * grid_scale * 0.35) - (grid_size.y * grid_scale * 0.5)
+	gui.set_position(img_c, vmath.vector3(img_c_x, img_c_y, 0))
+end
+
+function play_click_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#sound", "play_sound", {gain = 1})	
+end
+
+function play_timer_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#timer_sound", "play_sound", {gain = 1})
+end

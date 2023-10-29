@@ -1,0 +1,80 @@
+animations {
+  id: "start"
+  images {
+    image: "/gui/images/heart/heart (1).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (2).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (3).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (4).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (5).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (6).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (7).png"
+  }
+  images {
+    image: "/gui/images/heart/heart (8).png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "delete"
+  images {
+    image: "/gui/images/heart/heart_reverse_1.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_2.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_3.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_4.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_5.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_6.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_7.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_8.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_9.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_10.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_11.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_12.png"
+  }
+  images {
+    image: "/gui/images/heart/heart_reverse_13.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 30
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 1
+extrude_borders: 0
+inner_padding: 0

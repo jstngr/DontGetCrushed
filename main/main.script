@@ -1,0 +1,184 @@
+function init(self)
+	
+	local system = sys.get_sys_info().system_name
+	if system == "HTML5" then
+		print("HTML5")
+	end
+	if system == "Android" then
+		print("Android")
+	end	
+	
+	print(system)
+	
+	print("Main")
+	--msg.post("loader#Gamecontroller_collection_proxy", "load")
+	
+	msg.post("loader#Justiudio_collection_proxy", "load") -- <<<<<<<<<<----------------- nur das
+	-- msg.post("loader#Mainmenu_collection_proxy", "load")
+	-- msg.post("loader#Gamecontroller_collection_proxy", "load") 
+	-- msg.post("loader#help_proxy", "load") 
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+local debug_counter = 0
+
+function update(self, dt)	
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+local game_controller_loaded = false
+local main_menu_loaded = false
+local start_screen_loaded = false
+local help_screen_loaded = false
+
+local game_init_done = false
+local menu_init_done = false
+local help_init_done = false
+local start_screen_init_done = false
+
+function init_game(self)
+	if not game_init_done then
+		game_init_done = true
+	else
+		return
+	end
+	
+	-- <<<<<<<<<<<<<<<<<<----------------------------------------das wieder
+	print("[main] UNLOAD MENU")
+	msg.post("loader#Mainmenu_collection_proxy", "disable")
+	msg.post("loader#Mainmenu_collection_proxy", "final")
+	msg.post("loader#Mainmenu_collection_proxy", "unload")	
+	
+	menu_init_done = false -- <<<<<<<-------- neu
+	
+	print("[main] INIT GAME")	
+	msg.post("loader#Gamecontroller_collection_proxy", "init")
+	msg.post("loader#Gamecontroller_collection_proxy", "enable")
+	msg.post("loader#Gamecontroller_collection_proxy", "acquire_input_focus")
+	
+	msg.post("loader#Mainmenu_collection_proxy", "acquire_input_focus")
+end
+
+function init_start_screen(self)
+	if not start_screen_init_done then
+		start_screen_init_done = true
+	else
+		return
+	end
+	
+	print("[main] INIT STARTSCREEN")	
+	msg.post("loader#Justiudio_collection_proxy", "init")
+	msg.post("loader#Justiudio_collection_proxy", "enable")
+end
+
+function init_main_menu(self)
+	if not menu_init_done then
+		menu_init_done = true
+	else
+		return
+	end
+	
+	if start_screen_init_done then
+		print("[main] UNLOAD STARTSCREEN")
+		msg.post("loader#Justiudio_collection_proxy", "disable")
+		msg.post("loader#Justiudio_collection_proxy", "final")
+		msg.post("loader#Justiudio_collection_proxy", "unload")
+	end
+	
+	start_screen_init_done = false
+	
+	if help_init_done then
+		print("[main] UNLOAD HELPSCREEN")
+		msg.post("loader#help_proxy", "disable")
+		msg.post("loader#help_proxy", "final")
+		msg.post("loader#help_proxy", "unload")
+	end
+	
+	help_init_done = false	
+		
+	if game_init_done then
+		print("[main] UNLOAD GAME")
+		msg.post("loader#Gamecontroller_collection_proxy", "disable")
+		msg.post("loader#Gamecontroller_collection_proxy", "final")
+		msg.post("loader#Gamecontroller_collection_proxy", "unload")	
+	end
+			
+	game_init_done = false
+	
+	print("[main] INIT Menu")	
+	msg.post("loader#Mainmenu_collection_proxy", "init")
+	msg.post("loader#Mainmenu_collection_proxy", "enable")
+	msg.post("loader#Mainmenu_collection_proxy", "acquire_input_focus")
+end
+
+function init_help(self)
+	if not help_init_done then
+		help_init_done = true
+	else
+		return
+	end
+	
+	-- <<<<<<<<<<<<<<<<<<----------------------------------------das wieder
+	print("[main] UNLOAD MENU")
+	msg.post("loader#Mainmenu_collection_proxy", "disable")
+	msg.post("loader#Mainmenu_collection_proxy", "final")
+	msg.post("loader#Mainmenu_collection_proxy", "unload")	
+	
+	menu_init_done = false -- <<<<<<<-------- neu
+	
+	print("[main] INIT HELP")	
+	msg.post("loader#help_proxy", "init")
+	msg.post("loader#help_proxy", "enable")
+	msg.post("loader#help_proxy", "acquire_input_focus")
+end
+
+
+function on_message(self, message_id, message, sender)	
+    if message_id == hash("proxy_loaded") and sender.fragment == hash("Justiudio_collection_proxy") then
+		start_screen_loaded = true
+		init_start_screen(self)
+	end		
+    if message_id == hash("proxy_loaded") and sender.fragment == hash("Gamecontroller_collection_proxy") then
+		game_controller_loaded = true
+		init_game(self)
+	end	
+    if message_id == hash("proxy_loaded") and sender.fragment == hash("Mainmenu_collection_proxy") then
+		main_menu_loaded = true
+		init_main_menu(self)
+	end	
+    if message_id == hash("proxy_loaded") and sender.fragment == hash("help_proxy") then
+    	help_screen_loaded = true
+    	init_help(self)
+	end	
+    if message_id == hash("load_game") then
+		print("[main] LOAD GAME")
+		msg.post("loader#Gamecontroller_collection_proxy", "load")
+	end	
+    if message_id == hash("load_help") then
+		print("[main] LOAD HELP")
+		msg.post("loader#help_proxy", "load")
+	end	 
+    if message_id == hash("Controller: load_menu") then
+		print("[main] LOAD MENU")
+		msg.post("loader#Mainmenu_collection_proxy", "load")
+	end		
+	if message_id == hash("start_screen_controller: init_done") then
+		print("[main] LOAD MENU")
+		msg.post("loader#Mainmenu_collection_proxy", "load")		
+	end
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

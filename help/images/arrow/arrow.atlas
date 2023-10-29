@@ -1,0 +1,59 @@
+animations {
+  id: "play"
+  images {
+    image: "/help/images/arrow/Arrow_0.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_1.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_2.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_3.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_4.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_5.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_6.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_7.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_8.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_9.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_10.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_11.png"
+  }
+  images {
+    image: "/help/images/arrow/Arrow_12.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 18
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "deleted"
+  images {
+    image: "/help/images/arrow/Arrow_0.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

@@ -1,0 +1,225 @@
+animations {
+  id: "hero_item_idle"
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0001.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0002.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0003.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0004.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0005.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0006.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0007.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0008.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0009.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0010.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0011.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0012.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0013.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0014.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0015.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle0016.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_item_disabled"
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "hero_item_spawn"
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_0.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_1.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_2.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_3.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_4.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_5.png"
+  }
+  images {
+    image: "/coin/images/schriftrolle/schriftrolle_spawn_6.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 18
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_item_idle"
+  images {
+    image: "/coin/images/sir/sir_item_idle_0001.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_idle_0002.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_idle_0003.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_idle_0004.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_idle_0005.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_idle_0006.png"
+  }
+  images {
+    image: "/coin/images/sir/sir_item_idle_0007.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 8
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "sir_item_disabled"
+  images {
+    image: "/coin/images/sir/sir_item_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_item_idle"
+  images {
+    image: "/coin/images/batman/batman_item_idle_0001.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0002.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0003.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0004.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0005.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0006.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0007.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0008.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0009.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0010.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0011.png"
+  }
+  images {
+    image: "/coin/images/batman/batman_item_idle_0012.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "batman_item_disabled"
+  images {
+    image: "/coin/images/batman/batman_item_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 1
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_item_idle"
+  images {
+    image: "/coin/images/clown/clown_item_idle_0008.png"
+  }
+  images {
+    image: "/coin/images/clown/clown_item_idle_0009.png"
+  }
+  images {
+    image: "/coin/images/clown/clown_item_idle_0010.png"
+  }
+  images {
+    image: "/coin/images/clown/clown_item_idle_0011.png"
+  }
+  images {
+    image: "/coin/images/clown/clown_item_idle_0012.png"
+  }
+  images {
+    image: "/coin/images/clown/clown_item_idle_0013.png"
+  }
+  images {
+    image: "/coin/images/clown/clown_item_idle_0014.png"
+  }
+  playback: PLAYBACK_LOOP_PINGPONG
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "clown_item_disabled"
+  images {
+    image: "/coin/images/clown/clown_item_disabled.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 1
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

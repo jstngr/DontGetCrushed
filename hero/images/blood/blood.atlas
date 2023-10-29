@@ -1,0 +1,96 @@
+animations {
+  id: "Bleed"
+  images {
+    image: "/hero/images/blood/blood0.png"
+  }
+  images {
+    image: "/hero/images/blood/blood1.png"
+  }
+  images {
+    image: "/hero/images/blood/blood2.png"
+  }
+  images {
+    image: "/hero/images/blood/blood3.png"
+  }
+  images {
+    image: "/hero/images/blood/blood4.png"
+  }
+  images {
+    image: "/hero/images/blood/blood5.png"
+  }
+  images {
+    image: "/hero/images/blood/blood6.png"
+  }
+  images {
+    image: "/hero/images/blood/blood7.png"
+  }
+  images {
+    image: "/hero/images/blood/blood8.png"
+  }
+  images {
+    image: "/hero/images/blood/blood9.png"
+  }
+  images {
+    image: "/hero/images/blood/blood10.png"
+  }
+  images {
+    image: "/hero/images/blood/blood11.png"
+  }
+  images {
+    image: "/hero/images/blood/blood12.png"
+  }
+  images {
+    image: "/hero/images/blood/blood13.png"
+  }
+  images {
+    image: "/hero/images/blood/blood14.png"
+  }
+  images {
+    image: "/hero/images/blood/blood15.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "Drop_in"
+  images {
+    image: "/hero/images/blood/blood_in_0.png"
+  }
+  images {
+    image: "/hero/images/blood/blood_in_1.png"
+  }
+  images {
+    image: "/hero/images/blood/blood_in_2.png"
+  }
+  images {
+    image: "/hero/images/blood/blood_in_3.png"
+  }
+  images {
+    image: "/hero/images/blood/blood_in_4.png"
+  }
+  images {
+    image: "/hero/images/blood/blood_in_5.png"
+  }
+  images {
+    image: "/hero/images/blood/blood_in_6.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 15
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "disabled"
+  images {
+    image: "/hero/images/blood/blood_empty.png"
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 60
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

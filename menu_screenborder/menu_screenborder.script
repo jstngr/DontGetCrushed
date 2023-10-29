@@ -1,0 +1,20 @@
+local amount_of_x_grid = 9
+local screen_width = 720
+local screen_height = 1280      
+
+function init(self)
+
+	border_size_upper = go.get("upperborder#sprite", "size.y")
+	border_size_lower = go.get("lowerborder#sprite", "size.y")
+	border_new_scale_y = ((screen_height / 100) * 20) / border_size_upper
+	border_new_scale_x = (screen_width + 20) / go.get("upperborder#sprite", "size.x")
+ 
+	go.set_scale(vmath.vector3(border_new_scale_x, border_new_scale_y, go.get_scale("upperborder").z), "upperborder")	 
+	go.set_scale(vmath.vector3(border_new_scale_x, border_new_scale_y, go.get_scale("lowerborder").z), "lowerborder")	 
+
+	y = ((screen_height / 100) * 15) / 2
+	x = screen_width / 2
+	go.set_position(vmath.vector3(x, y, 1), "upperborder")
+	y = screen_height - (((screen_height / 100) * 10) / 2) 
+	go.set_position(vmath.vector3(x, y, 1), "lowerborder")
+end

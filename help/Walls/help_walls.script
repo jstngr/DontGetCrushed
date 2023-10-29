@@ -1,0 +1,330 @@
+local FIRST_INIT = true
+
+local walls = { "wall0", "wall1", "wall2", "wall3",
+                    "wall4", "wall5", "wall6", "wall7", "wall8" } 
+local crushers = {"crusher0", "crusher1", "crusher2", "crusher3", 
+					"crusher4", "crusher5", "crusher6", "crusher7", "crusher8",}
+					
+local hero_path = "help_collection:/hero#hero"
+local coin_path = "help_collection:/coin#coin"
+local controller_path = "help_collection:/controller#help_controller"
+local gui_path = "help_collection:/help_gui#help"					
+                    
+local amount_of_x_grid = 9
+local amount_of_hight_states = 10
+local screen_width = 720
+local screen_height = 1280          
+
+local middle_bottom = 0.225 -- percent / 100
+local middle_top = 0.725 --0.775
+local max_bottom = 0.35 
+local max_top = 0.60 -- 65
+local min_bottom = 0.15
+local min_top = 0.8 --0.85
+
+
+local bottom_height = 0
+local top_height = 0
+local height_of_one_wall_block = 0
+local extend_time = 50 -- how many ticks, till it should reach final position
+local extend_done_time = 0
+local walls_dy = {}
+local walls_scale_fac = 0.1
+local crusher_dy = {}
+local crusher_scale_fac = 0.1
+
+local walls_y_positions = {}
+local walls_y_grid = {}
+local walls_current_y_positions = {}
+local crusher_y_positions = {}
+local crusher_current_y_positions = {}
+local crusher_x_positions = {}
+
+local goal = -1
+local bg_middle_position = 0
+
+local post_level_generated_done = false -- controller got notified
+
+local DEBUG_spaces = {}
+local DEBUG_counter = 1
+
+function round(x, n)
+	n = math.pow(10, n)
+	x = x * n
+	return math.floor(x)/n
+end	
+
+function generate_level(self, fast)
+	
+	if fast then
+		extend_time = 1
+	else
+		extend_time = 50
+	end
+	
+	-- random shuffle
+	math.randomseed(os.time())
+	math.random(); math.random(); math.random()
+	
+	--Ziel wählen
+	goal = math.random(1, amount_of_x_grid)
+	print("[Walls] Goal: "..goal)
+	
+	min_space = 3
+	max_goal_height = amount_of_hight_states - (min_space + 1) 
+	max_wall_height = amount_of_hight_states -1
+	
+	msg.post(controller_path, "WALLS: goal_pos", {goal})
+		
+	-- Bottom 
+	for i, w in ipairs(walls) do
+		y_size = go.get(w.."#sprite", "size.y")
+		-- shouldnt be the highest if goal
+		if i == goal then	
+			rand = math.random(2, max_goal_height)
+		else
+			rand = math.random(2, max_wall_height)
+		end
+	
+		-- new pos
+		y_pos_new = min_bottom + ( rand * height_of_one_wall_block )
+		walls_y_grid[i] = rand
+	
+		-- Benachbarte dürfen nicht gleich sein		
+		if i > 1 then 
+			while y_pos_new == walls_y_positions[i-1] do
+				if i == goal then	
+					rand = math.random(2, max_goal_height)
+				else
+					rand = math.random(2, max_wall_height)
+				end
+				y_pos_new = min_bottom + ( rand * height_of_one_wall_block )
+			end
+		end
+		
+		walls_y_positions[i] = y_pos_new
+		walls_current_y_positions[i] = go.get_position(w).y + ((y_size * go.get_scale(w).y) / 2)
+		-- scaling
+		-- how much it has to be scaled per tick:
+		scale_y_new = (y_pos_new - go.get_position(w).y) / (y_size / 2)
+		scale_y_div = scale_y_new - go.get_scale(w).y
+		scale_y_div_per_step = scale_y_div / extend_time
+		walls_dy[i] = scale_y_div_per_step		
+	end
+	
+	goal_wall_height = walls_y_grid[goal]
+	goal_crusher_max_height = amount_of_hight_states - goal_wall_height - min_space
+	goal_crusher_height = math.random(1, goal_crusher_max_height)
+	goal_space = amount_of_hight_states - goal_wall_height - goal_crusher_height
+	
+	for i, w in ipairs(crushers) do
+		y_size = go.get(w.."#sprite", "size.y")
+		-- new pos
+		if i == goal then
+			y_pos_new = min_top + (((min_top - max_top) - (walls_y_positions[i] - min_bottom)) - (goal_space * height_of_one_wall_block))
+		else
+			y_pos_new = min_top + ((min_top - max_top) - (walls_y_positions[i] - min_bottom))
+		end	
+			
+		crusher_y_positions[i] = y_pos_new
+		crusher_current_y_positions[i] = go.get_position(w).y + ((y_size * go.get_scale(w).y) / 2)
+		-- scaling
+		-- how much it has to be scaled per tick:
+		scale_y_new = (y_pos_new - go.get_position(w).y) / (y_size / 2)
+		scale_y_div = scale_y_new - go.get_scale(w).y
+		scale_y_div_per_step = scale_y_div / extend_time
+		crusher_dy[i] = scale_y_div_per_step				
+	end
+			
+	msg.post(gui_path, "Walls: goal_height", {walls_y_positions[goal]})	
+	
+	-- Background
+	bg_width_scale = screen_width / go.get("background#sprite", "size.x")
+	bg_height_scale = (screen_height) / go.get("background#sprite", "size.y")
+	go.set_scale(vmath.vector3(bg_width_scale, bg_height_scale, 1),"background")
+	bg_pos_x = screen_width/2
+	bg_pos_y = screen_height
+	temp_min_crusher_y = screen_height
+	for i, w in ipairs(crushers) do
+		if crusher_current_y_positions[i] < temp_min_crusher_y then
+			temp_min_crusher_y = crusher_current_y_positions[i]	
+		end
+	end
+	bg_pos_y = temp_min_crusher_y + (go.get("background#sprite", "size.y") * go.get_scale("background").y / 2)	
+	go.set_position(vmath.vector3(bg_pos_x, bg_pos_y, 0), "background")
+	bg_middle_position = vmath.vector3(bg_pos_x, bg_pos_y, 0)	
+			
+	-- send info to hero
+	msg.post(hero_path, "walls", walls_current_y_positions)
+	msg.post(coin_path, "Walls: walls", walls_current_y_positions)
+	msg.post(hero_path, "level_init_done")
+	
+	extend_done_time = 0
+	post_level_generated_done = false
+	
+	if fast then
+		initial_crush()
+	end
+end
+
+function initial_crush()
+	print("[Walls] 2")
+	min_y = screen_height
+	for i, w in ipairs(crushers) do
+		crush_y = walls_y_positions[i]+go.get_scale(w).y*go.get(w.."#sprite", "size.y")/2
+		go.set_position(vmath.vector3(crusher_x_positions[i], crush_y, 0), w)
+		
+		if crush_y < min_y then
+			min_y = crush_y
+		end
+	end
+	
+	bg_y =  min_y + (go.get("background#sprite", "size.y") * go.get_scale("background").y / 2)	
+	go.set_position(vmath.vector3(screen_width/2, bg_y, 0), "background")	
+	msg.post(controller_path, "WALLS: crushed_init")
+end	
+
+function crush(self)
+	print("[Walls] 1")
+	min_y = screen_height
+	for i, w in ipairs(crushers) do
+		if i == goal then
+			crush_y = walls_y_positions[i]+ goal_space*height_of_one_wall_block +go.get_scale(w).y*go.get(w.."#sprite", "size.y")/2
+		else
+			crush_y = walls_y_positions[i]+go.get_scale(w).y*go.get(w.."#sprite", "size.y")/2
+		end
+		go.animate(w, "position.y", go.PLAYBACK_ONCE_FORWARD, crush_y, go.EASING_OUTBOUNCE, 1, 0)
+		
+		if crush_y < min_y then
+			min_y = crush_y
+		end
+	end
+	
+	bg_y =  min_y - 10 + (go.get("background#sprite", "size.y") * go.get_scale("background").y / 2)	----------------------Eventuell fix bg problem
+	msg.post(controller_path, "crushed")
+	go.animate("background", "position.y", go.PLAYBACK_ONCE_FORWARD, bg_y, go.EASING_OUTBOUNCE, 1, 0, send_crushed_final_msg)	
+end
+
+function lift(self)
+	for i, w in ipairs(crushers) do
+		go.animate(w, "position.y", go.PLAYBACK_ONCE_FORWARD, min_top, go.EASING_INOUTELASTIC, 1, 0)
+	end
+	
+	go.animate("background", "position.y", go.PLAYBACK_ONCE_FORWARD, bg_middle_position.y, go.EASING_INOUTELASTIC, 1, 0, msg.post(controller_path, "WALLS: lifted"))
+end
+
+function send_crushed_final_msg() 
+	msg.post(controller_path, "WALLS: crushed_final")
+end
+          
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	-- Add initialization code here
+	-- Remove this function if not needed
+	
+	-- Calc initial positions
+	-- stuff like middleTop and middleBottom
+	middle_top = middle_top * screen_height
+	middle_bottom = middle_bottom * screen_height
+	max_bottom = max_bottom * screen_height
+	max_top = max_top * screen_height
+	min_bottom = min_bottom * screen_height
+	min_top = min_top * screen_height
+	bottom_height = max_bottom - min_bottom
+	top_height = min_top - max_top
+	height_of_one_wall_block = top_height / amount_of_hight_states
+	
+	-- Calc width and position of Walls // Bottom
+	wall_size_x = go.get("wall0#sprite", "size.x")
+	wall_new_scale_x = (screen_width / amount_of_x_grid) / wall_size_x +0.01 -- JUST TO FIX WHITE SPACE IN BETWEEN...MAYBE ERROR
+
+    for i, w in ipairs(walls) do
+    	new_scale = vmath.vector3(wall_new_scale_x, go.get_scale(w).y, 1)
+    	go.set_scale(new_scale, w)      
+		
+		new_x = ((screen_width / amount_of_x_grid)*(i-1))+(wall_size_x*wall_new_scale_x/2)
+		new_position = vmath.vector3(new_x, min_bottom, 0)
+    	go.set_position(new_position, w)
+    end		
+    for i, w in ipairs(crushers) do
+    	new_scale = vmath.vector3(wall_new_scale_x, go.get_scale(w).y, 1)
+    	go.set_scale(new_scale, w)      
+		
+		new_x = ((screen_width / amount_of_x_grid)*(i-1))+(wall_size_x*wall_new_scale_x/2)
+		new_position = vmath.vector3(new_x, min_top, 0)
+    	go.set_position(new_position, w)
+    	crusher_x_positions[i] = new_x
+    end	
+
+	msg.post("help_collection:/screenborder/controller#screenborder", "Help_walls: arrange_borders", {Min_bottom = min_bottom})	 	
+end
+
+function update(self, dt)
+			
+	-- arrange walls to their y_pos
+	if extend_done_time >= extend_time then
+		if not post_level_generated_done then
+			if FIRST_INIT then
+				msg.post(controller_path, "level_generation_done_first")
+				post_level_generated_done = true
+				FIRST_INIT = false
+			else
+				msg.post(controller_path, "level_generation_done")
+				post_level_generated_done = true
+			end
+		end
+		return
+	end
+	
+	extend_done_time = extend_done_time + 1
+		
+	for i, w in ipairs(walls) do
+		y_size =  go.get(w.."#sprite", "size.y")
+		scale_x = go.get_scale(w).x
+		scale_y = go.get_scale(w).y + walls_dy[i]
+		scale_z = go.get_scale(w).z
+		scale_v = vmath.vector3(scale_x, scale_y, scale_z)
+		go.set_scale(scale_v, w)  
+		walls_current_y_positions[i] = go.get_position(w).y + ((y_size * go.get_scale(w).y) / 2) 
+	end
+	
+	for i, w in ipairs(crushers) do
+		y_size =  go.get(w.."#sprite", "size.y")
+		scale_x = go.get_scale(w).x
+		scale_y = go.get_scale(w).y + crusher_dy[i]
+		scale_z = go.get_scale(w).z
+		if(scale_y <= 0) then
+			scale_y = math.abs(scale_y)
+		end
+		
+		scale_v = vmath.vector3(scale_x, scale_y, scale_z)
+		go.set_scale(scale_v, w)  
+		crusher_current_y_positions[i] = go.get_position(w).y + ((y_size * go.get_scale(w).y) / 2) 
+	end	
+	msg.post(hero_path, "walls", walls_current_y_positions)
+	msg.post(coin_path, "Walls: walls", walls_current_y_positions)
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+	if message_id == hash("generate_level") then
+		generate_level(self, false)
+		return
+	end
+	if message_id == hash("generate_level_fast") then
+		generate_level(self, true)
+		return
+	end	
+	if message_id == hash("Crush") then
+		print("[Walls] crush")
+		crush()
+		return
+	end
+	if message_id == hash("Lift") then
+		lift()
+		return
+	end	
+	
+end

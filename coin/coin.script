@@ -1,0 +1,137 @@
+local amount_of_x_grid = 9
+local screen_width = 720
+local screen_height = 1280
+
+local controller_path = "Gamecontroller_collection:/controller#controller"
+
+local spawned = false
+
+local scale = 0
+
+local position = 0
+local walls_y_positions = {}
+
+local fade_out_text_timer = -1
+
+local is_sound = true
+
+local skin = "hero"
+
+function init(self)
+	x = (screen_width / amount_of_x_grid) * 0.5 + (position - 1) * (screen_width / amount_of_x_grid)
+	y = 0
+	go.set_position(vmath.vector3(x, y, 0))
+
+	scale = ((screen_width / amount_of_x_grid) - 10) / (go.get("#image", "size.x"))
+	go.set_scale(vmath.vector3(scale, scale, 1))
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	if not spawned then
+		return
+	end
+
+	x = (screen_width / amount_of_x_grid) * 0.5 + (position - 1) * (screen_width / amount_of_x_grid)
+	y = walls_y_positions[position] + 100 --+ go.get("#image", "size.x") 
+
+	go.set_position(vmath.vector3(x, y, 0))
+	msg.post(controller_path, "Coin: y", {walls_y_positions[position]})
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("Controller: spawn") then
+		go.set_scale(scale)
+		position = message[1]
+		x = (screen_width / amount_of_x_grid) * 0.5 + (position - 1) * (screen_width / amount_of_x_grid)
+		y = walls_y_positions[position] + go.get("#image", "size.y")
+		go.set_position(vmath.vector3(x, y, 0))
+		-- spawn animation
+		spawned = true
+		msg.post("#background", "play_animation", { id = hash(skin.."_item_background_spawn")})
+		go.set("#image", "tint", vmath.vector4(1, 1, 1, 0))
+		msg.post("#image", "play_animation", { id = hash(skin.."_item_idle")})
+		go.animate("#image", "tint", go.PLAYBACK_ONCE_FORWARD, vmath.vector4(1, 1, 1, 1), go.EASING_LINEAR, 0.3, 0.5)
+		--msg.post("#image", "play_animation", { id = hash(skin.."item_background_spawn")})		
+	end
+	if message_id == hash("Walls: walls") then
+		walls_y_positions = message
+	end
+	if message_id == hash("Controller: collected") then
+		msg.post("#background", "play_animation", { id = hash(skin.."_item_background_collect")})
+		msg.post("#image", "play_animation", { id = hash(skin.."_item_disabled")})  -------------------- vllt schönere animation
+		play_collect_sound()
+	end
+	if message_id == hash("Controller: disable") then
+		msg.post("#background", "play_animation", { id = hash(skin.."_item_background_disabled")})
+		msg.post("#image", "play_animation", { id = hash(skin.."_item_disabled")})
+		spawned = false
+	end
+    if message_id == hash("animation_done") then
+    	if message.id == hash(skin.."_item_background_spawn") then
+			msg.post("#background", "play_animation", { id = hash(skin.."_item_background_idle")})
+			-- go.set("#image", "tint", vmath.vector4(1, 1, 1, 0))
+			-- msg.post("#image", "play_animation", { id = hash(skin.."_item_idle")})
+			-- go.animate("#image", "tint", go.PLAYBACK_ONCE_FORWARD, vmath.vector4(1, 1, 1, 1), go.EASING_LINEAR, 0.3)
+			--msg.post("#image", "play_animation", { id = hash(skin.."item_background_spawn")})
+		end
+		if message.id == hash("schriftrolle_spawn") then
+			--msg.post("#image", "play_animation", { id = hash("sir_item_idle")})
+		end
+		if message.id == hash(skin.."_item_background_collect") then
+			msg.post("#background", "play_animation", { id = hash(skin.."_item_background_disabled")})
+		end
+	end
+	if message_id == hash("Controller: options") then
+		is_sound = message.IS_SOUND
+		return
+	end
+	if message_id == hash("Controller: path") then
+		controller_path = message[1]
+		return
+	end	
+	if message_id == hash("Controller: Update_skin") then
+		if skin == message[1] then
+			return
+		end
+		skin = message[1]
+		msg.post("#background", "play_animation", { id = hash(skin.."_item_background_collect")})
+		msg.post("#image", "play_animation", { id = hash(skin.."_item_disabled")}) 
+		go.animate("#image", "tint", go.PLAYBACK_ONCE_FORWARD, vmath.vector4(1, 1, 1, 1), go.EASING_LINEAR, 
+			0, 0.5, update_skin)
+	end	
+	if message_id == hash("Controller: set_skin") then
+		skin = message[1]
+	end
+	
+end
+
+function update_skin()
+	spawned = true
+	msg.post("#background", "play_animation", { id = hash(skin.."_item_background_spawn")})
+	go.set("#image", "tint", vmath.vector4(1, 1, 1, 0))
+	msg.post("#image", "play_animation", { id = hash(skin.."_item_idle")})
+	go.animate("#image", "tint", go.PLAYBACK_ONCE_FORWARD, vmath.vector4(1, 1, 1, 1), go.EASING_LINEAR, 0.3, 0.5)
+end
+
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not neede
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end
+
+function play_collect_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#sound", "play_sound", {gain = 0.8})
+end

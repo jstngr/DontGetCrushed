@@ -1,0 +1,256 @@
+local amount_of_x_grid = 9
+local screen_width = 720
+local screen_height = 1280
+
+local controller_path = "Gamecontroller_collection:/controller#controller"
+local blood_path = "Gamecontroller_collection:/level/blood#blood"
+
+local spawned = false
+
+local level_init_done = false
+
+local walls_y_positions = {}
+local grid_x_locations = {}
+local hero_x_pos_number = math.floor(amount_of_x_grid / 2) + 1
+
+local able_to_move = false
+ 
+local clicked = false 
+
+local is_teleporting = false
+local teleport_state = 0
+local teleport_grid_pos_dest = 0
+local teleport_follow_animation = "idle"
+local is_dead = true
+
+local skin = "hero"
+
+local is_sound = true
+
+local is_gui_enabled = true
+
+-- helpscreen
+local is_help_screen = false
+ 
+function move_to_pos(grid_pos)
+	go.set_position(vmath.vector3(grid_x_locations[grid_pos], walls_y_positions[grid_pos] + (go.get_scale().y * go.get("#sprite", "size.y")/2),0))
+end 
+
+function teleport(grid_pos)
+	msg.post("#sprite", "play_animation", { id = hash(skin.."_start_teleport")})
+	teleport_state = 1
+	is_teleporting = true
+	teleport_grid_pos_dest = grid_pos
+	print("[hero] Play Sound")
+	play_teleport_sound()
+end 
+
+function spawn(self)
+	spawned = true	
+	if is_dead then
+		msg.post("#sprite", "play_animation", { id = hash(skin.."_end_teleport")})
+		print("[hero] Play Sound")
+		play_teleport_sound()
+		is_dead = false
+	end
+	teleport_state = -1
+	msg.post(controller_path, "HERO: hero_pos", {hero_x_pos_number})
+end
+
+function init(self)
+	print("[hero] init")
+    -- this tells the engine to send input to on_input() in this script
+    msg.post(".", "acquire_input_focus")
+	
+	-- calc middle of screen
+	-- position and scale of hero
+	hero_size_x = go.get("#sprite", "size.x")
+	hero_new_scale = (screen_width / amount_of_x_grid) / hero_size_x	
+	go.set_scale(hero_new_scale)
+	
+	-- calc grid_x_locations, as locations for hero
+	grid_width = screen_width / amount_of_x_grid
+	for i=1,amount_of_x_grid,1 do
+		grid_x_locations[i] = (grid_width / 2) + ((i - 1) * grid_width)
+	end	
+
+	go.set_position(vmath.vector3(grid_x_locations[math.ceil(amount_of_x_grid)], -500, 0))    
+	hero_x_pos_number = math.ceil(amount_of_x_grid/2)
+end
+
+function final(self)
+    -- Return input focus when the object is deleted
+    print("[hero] final")
+    msg.post(".", "release_input_focus")
+end
+
+function update(self, dt)
+	if not spawned then
+		return
+	end
+	
+	-- arrange hero with height of bottom_walls
+	if level_init_done == true then
+		--go.set_position(vmath.vector3(grid_x_locations[hero_x_pos_number], walls_y_positions[hero_x_pos_number] + (go.get_scale().y * go.get("#sprite", "size.y")/2),0))
+		move_to_pos(hero_x_pos_number)
+	end
+end
+
+function on_message(self, message_id, message, sender)
+    if message_id == hash("walls") then
+    	walls_y_positions = message
+    end
+    
+    if message_id == hash("level_init_done") then
+    	level_init_done = true
+    end   
+    
+    if message_id == hash("set_able_to_move") then
+    	able_to_move = message[1]
+    end   
+    
+    if message_id == hash("spawn") then
+    	spawn(self)
+    end  
+   	
+	if message_id == hash("Controller: start_blood") then
+		start_blood(self)
+	end
+	
+	if message_id == hash("Controller: stop_blood") or message_id == hash("Gui: stop_blood") then
+		msg.post(blood_path, "Hero: stop_blood")
+	end	
+	
+	if message_id == hash("controller: path") then
+		controller_path = message[1]
+	end	
+	
+	if message_id == hash("Controller: change animation") then
+		if not is_teleporting then
+			msg.post("#sprite", "play_animation", { id = hash(skin.."_"..message[1]) })
+			return
+		else
+			teleport_follow_animation = message[1]
+		end
+	end	
+	if message_id == hash("Controller: dead") then
+		is_dead = true
+	end
+	if message_id == hash("Controller: change_skin") then
+		skin = message[1]	
+		msg.post("#sprite", "play_animation", { id = hash(skin.."_idle") })
+	end	
+	if message_id == hash("Controller: show_thumbnail") then
+		msg.post("#sprite", "play_animation", { id = hash(message[1].."_thumb") })
+	end		
+	
+
+	---- Teleport
+    if message_id == hash("animation_done") then
+    	print("[Hero] Animation done")
+    	
+    	if teleport_state == 1 then
+    		print("[Hero] Starte end_teleport")
+    		hero_x_pos_number = teleport_grid_pos_dest
+    		msg.post("#sprite", "play_animation", { id = hash(skin.."_end_teleport") })
+    		teleport_state = 2
+    		return
+    	end
+    	if teleport_state == 2 then
+    		print("[Hero] Starte idle nach teleport")
+    		msg.post("#sprite", "play_animation", { id = hash(skin.."_"..teleport_follow_animation)})
+    		is_teleporting = false
+    		teleport_state = 0
+    		teleport_follow_animation = "idle"
+    		return
+    	end
+        if teleport_state == -1 then
+    		print("[Hero] Starte idle nach spawn")
+    		msg.post("#sprite", "play_animation", { id = hash(skin.."_idle")})
+    		teleport_state = 0
+    		return
+    	end   	
+    	if not spawned then
+    		msg.post("#sprite", "play_animation", { id = hash(skin.."_dead")})
+    	end
+    end	
+	if message_id == hash("Help_controller: limit_input_y") then
+		is_help_screen = true
+		print("[Hero] changed to help_screen")
+	end    
+	
+	if message_id == hash("Controller: DEBUG") then 
+		i = message[1]
+		teleport(i)
+		msg.post(controller_path, "HERO: hero_pos", {i})	
+	end
+	
+	if message_id == hash("Controller: options") then
+		is_sound = message.IS_SOUND
+	end
+	
+	if message_id == hash("Main_menu: activate_arrows") then
+		msg.post("arrow_left", "enable")
+		msg.post("arrow_right", "enable")
+		msg.post("swipe_text", "enable")
+	end
+	if message_id == hash("Deactivate_arrows") then
+		msg.post("arrow_left", "disable")
+		msg.post("arrow_right", "disable")
+		msg.post("swipe_text", "disable")
+	end	
+	if message_id == hash("despawn") then
+		despawn()
+	end
+end
+
+
+function on_input(self, action_id, action)	
+	middle = screen_width/2	
+		
+	if action_id == hash("left") and action.pressed and able_to_move and not is_teleporting then
+		print("[Hero] y clicked: "..action.y/screen_height)
+		
+		if is_help_screen and action.y < screen_height * 0.15 then
+			return
+		end			
+		
+		if action.y > 0 and action.y < screen_height * 0.75 then
+			x = action.x
+			grid_width = screen_width / amount_of_x_grid
+			for i=1,amount_of_x_grid,1 do
+				if (i - 1) * grid_width < x and i * grid_width > x then
+					--hero_x_pos_number = i
+					teleport(i)
+					msg.post(controller_path, "HERO: hero_pos", {i})
+				end
+			end	
+		end		  
+	end  		
+end
+
+function on_reload(self)
+	print("[hero] reload")
+end
+
+function start_blood(self)
+	y = go.get_position().y - (go.get_scale().y * go.get("#sprite", "size.y")/2)
+	msg.post(blood_path, "Hero: start_blood", {pos = vmath.vector3(go.get_position().x, y, 1), grid_width = screen_width / amount_of_x_grid})
+end
+
+function start_death_animation(self)
+	
+end
+
+function despawn()
+	msg.post("#sprite", "play_animation", { id = hash(skin.."_start_teleport")})	
+	play_teleport_sound()
+	spawned = false
+end
+
+function play_teleport_sound()
+	if not is_sound then
+		return
+	end
+	msg.post("#teleport_sound", "play_sound", {gain = 0.5})
+end

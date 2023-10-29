@@ -1,0 +1,40 @@
+animations {
+  id: "New Animation"
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo10.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo20.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo30.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo40.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo50.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo60.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo70.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo80.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo90.png"
+  }
+  images {
+    image: "/menu_gui/Justiudo_logo/Justudio_logo.png"
+  }
+  playback: PLAYBACK_ONCE_FORWARD
+  fps: 10
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0
